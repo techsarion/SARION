@@ -1,0 +1,155 @@
+// Sarion — Agency CRM + Client Portal
+// 8 MVP entities per docs/MVP-PRD.md §7
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  owner
+  member
+}
+
+enum ProjectStatus {
+  not_started
+  in_progress
+  review
+  done
+}
+
+enum InvoiceStatus {
+  paid
+  unpaid
+  overdue
+}
+
+model Agency {
+  id                 String   @id @default(cuid())
+  name               String
+  logoUrl            String?
+  plan               String   @default("starter")
+  stripeCustomerId   String?
+  subscriptionStatus String   @default("trialing")
+  createdAt          DateTime @default(now())
+
+  users    User[]
+  clients  Client[]
+  projects Project[]
+  invoices Invoice[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  agencyId     String
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(member)
+  createdAt    DateTime @default(now())
+
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  @@index([agencyId])
+}
+
+model Client {
+  id          String   @id @default(cuid())
+  agencyId    String
+  name        String
+  company     String?
+  email       String?
+  phone       String?
+  notes       String?
+  portalToken String   @unique @default(cuid())
+  createdAt   DateTime @default(now())
+
+  agency   Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  projects Project[]
+  invoices Invoice[]
+  comments Comment[]
+
+  @@index([agencyId])
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  agencyId    String
+  clientId    String
+  title       String
+  description String?
+  status      ProjectStatus @default(not_started)
+  dueDate     DateTime?
+  createdAt   DateTime      @default(now())
+
+  agency   Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tasks    Task[]
+  comments Comment[]
+
+  @@index([agencyId])
+  @@index([clientId])
+}
+
+model Task {
+  id        String  @id @default(cuid())
+  projectId String
+  title     String
+  isDone    Boolean @default(false)
+  sortOrder Int     @default(0)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Invoice {
+  id        String        @id @default(cuid())
+  agencyId  String
+  clientId  String
+  number    String
+  status    InvoiceStatus @default(unpaid)
+  issueDate DateTime      @default(now())
+  dueDate   DateTime?
+  total     Decimal       @default(0) @db.Decimal(10, 2)
+  createdAt DateTime      @default(now())
+
+  agency Agency        @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  client Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  items  InvoiceItem[]
+
+  @@index([agencyId])
+  @@index([clientId])
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  description String
+  qty         Int     @default(1)
+  unitPrice   Decimal @default(0) @db.Decimal(10, 2)
+  lineTotal   Decimal @default(0) @db.Decimal(10, 2)
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  clientId   String
+  projectId  String?
+  authorName String
+  body       String
+  createdAt  DateTime @default(now())
+
+  client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([projectId])
+}
