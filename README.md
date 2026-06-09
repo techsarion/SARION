@@ -1,88 +1,116 @@
 # Sarion
 
-> Agency CRM + Client Portal for small agencies.
+> Agency CRM + Client Portal — work smarter, achieve more.
 
-## Overview
-
-Sarion is an agency-shaped CRM with a branded client portal. It centralizes clients,
-projects, and invoices in one place, and gives each client a professional portal link.
-See [docs/MVP-PRD.md](docs/MVP-PRD.md) for the frozen product spec.
+Sarion centralizes clients, projects, and invoices in one premium B2B workspace, and
+gives every agency a branded client portal. This repo ships the **Day 2 foundation**:
+design system, database, authentication, and a production-ready dashboard shell.
 
 ## Tech Stack
 
-Next.js 15 (App Router) · TypeScript · Tailwind CSS · shadcn/ui · PostgreSQL · Prisma ·
-Better Auth · Stripe · Docker / Coolify
+- **Next.js** 15 (App Router, Server Components & Server Actions)
+- **TypeScript** (strict mode, no `any`)
+- **PostgreSQL**
+- **Prisma** (ORM + migrations)
+- **Better Auth** (email/password, no OAuth)
+- **Tailwind CSS**
+- **shadcn/ui** (Radix primitives + Lucide icons)
 
-## Getting Started
+## Setup
 
 ### Prerequisites
 
 - Node 20 (`nvm use`)
-- pnpm 9
-- Docker (for local Postgres)
+- npm
+- Docker (for local Postgres) — or any reachable PostgreSQL instance
 
-### Installation
-
-```bash
-git clone https://github.com/<you>/sarion.git && cd sarion
-nvm use
-pnpm install
-```
-
-### Environment
+### 1. Install dependencies
 
 ```bash
-cp .env.example .env.local
-# fill DATABASE_URL, BETTER_AUTH_SECRET (openssl rand -base64 32), Stripe keys
+npm install
 ```
 
-### Database
+### 2. Configure environment
 
 ```bash
-docker compose up -d     # local Postgres
-pnpm db:migrate          # apply migrations
-pnpm db:seed             # demo client / project / invoice
+cp .env.example .env
 ```
 
-### Run
+Then set the required values in `.env`:
+
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `BETTER_AUTH_SECRET` | Session signing secret — `openssl rand -base64 32` |
+| `BETTER_AUTH_URL` | App origin (e.g. `http://localhost:3000`) |
+| `NEXT_PUBLIC_APP_URL` | Public app origin |
+
+### 3. Start the database & apply migrations
 
 ```bash
-pnpm dev                 # http://localhost:3000
+docker compose up -d     # local Postgres on :5432
+npm run db:deploy        # applies prisma/migrations (the `init` migration)
+# or, for an interactive dev migration cycle:
+npm run db:migrate
 ```
 
-## Project Structure
+### 4. Run the app
 
-See [docs/architecture.md](docs/architecture.md). Single Next.js app — Server Actions for
-CRUD, API routes only for auth, Stripe webhook, and the client portal.
+```bash
+npm run dev              # http://localhost:3000
+```
 
-## Scripts
+Visit `/signup` to create an agency + owner account, then land on `/dashboard`.
+
+### Useful scripts
 
 | Script | Purpose |
 |---|---|
-| `pnpm dev` | Dev server |
-| `pnpm build` | Production build (runs `prisma generate`) |
-| `pnpm start` | Run production build |
-| `pnpm lint` | ESLint |
-| `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm db:migrate` | Prisma migrate (dev) |
-| `pnpm db:deploy` | Prisma migrate (prod) |
-| `pnpm db:seed` | Seed demo data |
-| `pnpm db:studio` | Prisma Studio |
+| `npm run dev` | Dev server |
+| `npm run build` | Production build (runs `prisma generate`) |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | ESLint |
+| `npm run db:migrate` | Prisma migrate (dev) |
+| `npm run db:deploy` | Prisma migrate (prod / CI) |
+| `npm run db:studio` | Prisma Studio |
 
-## Deployment
+## Development Workflow
 
-See [docs/deployment.md](docs/deployment.md) — Docker image deployed via Coolify on a VPS.
+Single Next.js app. UI is composed from a shared design system; data access goes through
+Prisma; auth is handled by Better Auth via a catch-all API route and edge middleware.
+
+```
+app/                      # Next.js App Router
+  (auth)/                 #   public auth pages — /login, /signup (split-screen brand layout)
+  (app)/                  #   authenticated shell — sidebar + header, guarded by middleware
+    dashboard/            #     dashboard (stats, recent projects, activity)
+    clients/ projects/ … #     nav routes
+  api/auth/[...all]/      #   Better Auth handler
+  layout.tsx globals.css  #   root layout + brand design tokens
+components/
+  ui/                     # shadcn/ui primitives (button, card, input, badge, dialog, table…)
+  layout/                 # sidebar, header, page-wrapper, logo, user-menu
+lib/                      # db (Prisma singleton), auth, auth-client, session, utils, env
+prisma/                   # schema.prisma + migrations (init)
+types/                    # shared app types
+docs/                     # product & engineering docs (PRD is frozen)
+public/                   # static assets
+```
+
+Conventions:
+
+- **TypeScript strict**, no `any`. Prefer Prisma-generated types.
+- **Server Components by default**; `"use client"` only for interactivity (forms, menus).
+- **Route protection**: `middleware.ts` does a fast cookie check; the `(app)` layout
+  re-validates the full session server-side before rendering.
+- **Brand**: blue→cyan ribbon gradient exposed as Tailwind tokens (`bg-brand-gradient`,
+  `text-brand-gradient`) and CSS variables in `globals.css`.
 
 ## Documentation
 
-- [docs/ICP.md](docs/ICP.md) — Ideal Customer Profile
-- [docs/Customer-Personas.md](docs/Customer-Personas.md)
-- [docs/Competitor-Analysis.md](docs/Competitor-Analysis.md)
 - [docs/MVP-PRD.md](docs/MVP-PRD.md) — **frozen spec**
-- [docs/POST-LAUNCH.md](docs/POST-LAUNCH.md) — backlog
-- [docs/architecture.md](docs/architecture.md)
-- [docs/database.md](docs/database.md)
-- [docs/deployment.md](docs/deployment.md)
+- [docs/POST-LAUNCH.md](docs/POST-LAUNCH.md) — future ideas backlog (nothing enters MVP unless approved)
+- [docs/architecture.md](docs/architecture.md) · [docs/database.md](docs/database.md) · [docs/deployment.md](docs/deployment.md)
 
 ## License
 
