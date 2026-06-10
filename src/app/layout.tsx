@@ -3,6 +3,7 @@ import { Inter, Geist } from "next/font/google";
 
 import { siteConfig } from "@/config/site";
 import { ThemeProvider } from "@/components/theme-provider";
+// @ts-expect-error: global CSS side-effect import
 import "./globals.css";
 
 // Body — Inter 400
