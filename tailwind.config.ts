@@ -9,6 +9,19 @@ const config: Config = {
       padding: "2rem",
       screens: { "2xl": "1400px" },
     },
+    // Global border-radius cap: max 2px everywhere (sharp, modern UI).
+    // `full` is kept for intentionally circular elements (avatars, status dots).
+    borderRadius: {
+      none: "0px",
+      sm: "1px",
+      DEFAULT: "2px",
+      md: "2px",
+      lg: "2px",
+      xl: "2px",
+      "2xl": "2px",
+      "3xl": "2px",
+      full: "9999px",
+    },
     extend: {
       colors: {
         border: "hsl(var(--border))",
@@ -50,13 +63,9 @@ const config: Config = {
           accent: "hsl(var(--brand-accent))",
         },
       },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        heading: ["var(--font-heading)", "var(--font-sans)", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

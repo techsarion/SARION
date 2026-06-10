@@ -2,6 +2,7 @@ import { Search } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { UserMenu } from "@/components/layout/user-menu";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 interface HeaderProps {
   user: {
@@ -30,7 +31,8 @@ export function Header({ user }: HeaderProps) {
         />
       </div>
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-2">
+        <ThemeToggle />
         <UserMenu name={user.name} email={user.email} initials={initials} />
       </div>
     </header>

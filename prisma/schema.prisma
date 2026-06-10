@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // transaction pooler (pgbouncer) — app runtime
+  directUrl = env("DIRECT_URL")   // session pooler — migrations & introspection
 }
 
 enum Role {
@@ -36,11 +37,16 @@ model Agency {
   stripeCustomerId   String?
   subscriptionStatus String   @default("trialing")
   createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt @default(now())
 
-  users    User[]
-  clients  Client[]
-  projects Project[]
-  invoices Invoice[]
+  users        User[]
+  clients      Client[]
+  projects     Project[]
+  invoices     Invoice[]
+  tasks        Task[]
+  invoiceItems InvoiceItem[]
+  comments     Comment[]
+  activities   Activity[]
 }
 
 model User {
@@ -119,13 +125,32 @@ model Client {
   notes       String?
   portalToken String   @unique @default(cuid())
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt @default(now())
+  deletedAt   DateTime?
 
-  agency   Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  projects Project[]
-  invoices Invoice[]
-  comments Comment[]
+  agency     Agency     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  projects   Project[]
+  invoices   Invoice[]
+  comments   Comment[]
+  activities Activity[]
 
   @@index([agencyId])
+}
+
+// Append-only audit trail for client-level events (F3 activity history).
+model Activity {
+  id          String   @id @default(cuid())
+  agencyId    String
+  clientId    String
+  type        String
+  description String
+  createdAt   DateTime @default(now())
+
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([agencyId])
+  @@index([clientId, createdAt])
 }
 
 model Project {
@@ -137,6 +162,8 @@ model Project {
   status      ProjectStatus @default(not_started)
   dueDate     DateTime?
   createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt @default(now())
+  deletedAt   DateTime?
 
   agency   Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
@@ -145,18 +172,24 @@ model Project {
 
   @@index([agencyId])
   @@index([clientId])
+  @@index([agencyId, status])
 }
 
 model Task {
   id        String  @id @default(cuid())
+  agencyId  String
   projectId String
   title     String
   isDone    Boolean @default(false)
   sortOrder Int     @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
 
+  agency  Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
+  @@index([agencyId])
 }
 
 model Invoice {
@@ -169,39 +202,52 @@ model Invoice {
   dueDate   DateTime?
   total     Decimal       @default(0) @db.Decimal(10, 2)
   createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt @default(now())
+  deletedAt DateTime?
 
   agency Agency        @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  client Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
   items  InvoiceItem[]
 
+  @@unique([agencyId, number])
   @@index([agencyId])
   @@index([clientId])
+  @@index([agencyId, status, dueDate])
 }
 
 model InvoiceItem {
   id          String  @id @default(cuid())
+  agencyId    String
   invoiceId   String
   description String
   qty         Int     @default(1)
   unitPrice   Decimal @default(0) @db.Decimal(10, 2)
   lineTotal   Decimal @default(0) @db.Decimal(10, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt @default(now())
 
+  agency  Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
+  @@index([agencyId])
 }
 
 model Comment {
   id         String   @id @default(cuid())
+  agencyId   String
   clientId   String
   projectId  String?
   authorName String
   body       String
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt @default(now())
 
+  agency  Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([clientId])
   @@index([projectId])
+  @@index([agencyId])
 }

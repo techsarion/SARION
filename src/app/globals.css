@@ -37,7 +37,7 @@
     --brand: 221 83% 53%;
     --brand-accent: 199 89% 56%;
 
-    --radius: 0.75rem;
+    --radius: 2px;
   }
 
   .dark {
@@ -80,6 +80,17 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    font-weight: 400; /* Inter 400 */
+  }
+  /* Headings — Geist 700 */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading), var(--font-sans), sans-serif;
+    font-weight: 700;
   }
 }
 
