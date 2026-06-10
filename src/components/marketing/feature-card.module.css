@@ -1,0 +1,44 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-space-3);
+  padding: var(--m-space-5);
+  background: var(--m-card);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.card:hover {
+  background: var(--m-card-hover);
+  border-color: var(--m-border-strong);
+}
+
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--m-radius);
+  background: var(--m-primary-soft);
+  color: var(--m-primary);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.title {
+  font-size: var(--m-text-lg);
+  font-weight: 600;
+}
+
+.description {
+  font-size: var(--m-text-sm);
+  color: var(--m-fg-muted);
+  line-height: 1.55;
+}

@@ -17,10 +17,10 @@ enum Role {
 }
 
 enum ProjectStatus {
-  not_started
-  in_progress
-  review
-  done
+  PLANNED
+  ACTIVE
+  COMPLETED
+  ON_HOLD
 }
 
 enum InvoiceStatus {
@@ -142,33 +142,38 @@ model Activity {
   id          String   @id @default(cuid())
   agencyId    String
   clientId    String
+  projectId   String?
   type        String
   description String
   createdAt   DateTime @default(now())
 
-  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  agency  Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([agencyId])
   @@index([clientId, createdAt])
+  @@index([projectId, createdAt])
 }
 
 model Project {
   id          String        @id @default(cuid())
   agencyId    String
   clientId    String
-  title       String
+  name        String
   description String?
-  status      ProjectStatus @default(not_started)
+  status      ProjectStatus @default(PLANNED)
+  startDate   DateTime?
   dueDate     DateTime?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt @default(now())
   deletedAt   DateTime?
 
-  agency   Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  tasks    Task[]
-  comments Comment[]
+  agency     Agency     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  client     Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tasks      Task[]
+  comments   Comment[]
+  activities Activity[]
 
   @@index([agencyId])
   @@index([clientId])

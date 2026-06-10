@@ -1,0 +1,178 @@
+.demoNote {
+  display: flex;
+  align-items: center;
+  gap: var(--m-space-3);
+  justify-content: center;
+  margin-bottom: var(--m-space-6);
+  font-size: var(--m-text-sm);
+  color: var(--m-fg-muted);
+}
+
+.portal {
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background: var(--m-bg-elev);
+  overflow: hidden;
+  box-shadow: var(--m-shadow);
+}
+
+.portalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--m-space-5);
+  border-bottom: 1px solid var(--m-border);
+  background: var(--m-card);
+}
+
+.company {
+  display: flex;
+  align-items: center;
+  gap: var(--m-space-3);
+}
+
+.companyMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--m-radius);
+  background: var(--m-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: var(--m-text-lg);
+}
+
+.companyName {
+  font-weight: 700;
+  font-size: var(--m-text-lg);
+}
+
+.companySub {
+  font-size: var(--m-text-xs);
+  color: var(--m-fg-subtle);
+}
+
+.poweredBy {
+  font-size: var(--m-text-xs);
+  color: var(--m-fg-subtle);
+}
+
+.portalBody {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--m-space-5);
+  padding: var(--m-space-5);
+}
+
+/* Activity panel spans full width below the two columns */
+.panel:nth-child(3) {
+  grid-column: 1 / -1;
+}
+
+.panel {
+  padding: var(--m-space-5);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background: var(--m-card);
+}
+
+.panelTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--m-space-2);
+  font-size: var(--m-text-sm);
+  font-weight: 600;
+  color: var(--m-fg);
+  margin-bottom: var(--m-space-4);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-space-3);
+}
+
+.listRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--m-space-3);
+  padding: var(--m-space-3);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background: var(--m-bg-elev);
+}
+
+.rowMain {
+  display: flex;
+  align-items: center;
+  gap: var(--m-space-3);
+}
+
+.rowIcon {
+  color: var(--m-success);
+  flex-shrink: 0;
+}
+
+.rowTitle {
+  font-size: var(--m-text-sm);
+  font-weight: 600;
+  color: var(--m-fg);
+}
+
+.rowSub {
+  font-size: var(--m-text-xs);
+  color: var(--m-fg-subtle);
+}
+
+.activityList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-space-4);
+}
+
+.activityRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--m-space-3);
+}
+
+.activityDot {
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 9999px;
+  background: var(--m-primary);
+  flex-shrink: 0;
+}
+
+.cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--m-space-4);
+  padding: var(--m-space-8) var(--m-space-6);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background: var(--m-card);
+}
+
+.ctaTitle {
+  font-size: var(--m-text-2xl);
+  max-width: 24ch;
+}
+
+@media (max-width: 760px) {
+  .portalBody {
+    grid-template-columns: 1fr;
+  }
+}

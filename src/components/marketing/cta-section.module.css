@@ -1,0 +1,42 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--m-space-4);
+  padding: var(--m-space-9) var(--m-space-6);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(59, 130, 246, 0.08),
+      transparent 60%
+    ),
+    var(--m-card);
+}
+
+.headline {
+  font-size: var(--m-text-3xl);
+  max-width: 20ch;
+}
+
+.subtext {
+  font-size: var(--m-text-lg);
+  color: var(--m-fg-muted);
+  max-width: 50ch;
+}
+
+.actions {
+  display: flex;
+  gap: var(--m-space-3);
+  margin-top: var(--m-space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .headline {
+    font-size: var(--m-text-2xl);
+  }
+}

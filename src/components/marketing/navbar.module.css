@@ -1,0 +1,117 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid var(--m-border);
+  background: var(--m-nav-bg);
+  backdrop-filter: blur(12px);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--m-nav-h);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--m-space-2);
+}
+
+.brandMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--m-radius);
+  background: var(--m-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: var(--m-text-base);
+}
+
+.brandText {
+  font-family: var(--font-heading), var(--font-sans), sans-serif;
+  font-size: var(--m-text-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  gap: var(--m-space-6);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.link {
+  font-size: var(--m-text-sm);
+  font-weight: 500;
+  color: var(--m-fg-muted);
+  transition: color 0.15s ease;
+}
+.link:hover {
+  color: var(--m-fg);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--m-space-3);
+}
+
+.menuButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background: transparent;
+  color: var(--m-fg);
+  cursor: pointer;
+}
+
+.mobile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-space-2);
+  padding: var(--m-space-4) var(--m-space-5) var(--m-space-5);
+  border-top: 1px solid var(--m-border);
+  background: var(--m-bg);
+}
+
+.mobileLink {
+  padding: var(--m-space-3) 0;
+  font-size: var(--m-text-base);
+  color: var(--m-fg);
+}
+
+.mobileRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--m-space-2) 0;
+}
+
+.mobileActions {
+  display: grid;
+  gap: var(--m-space-3);
+  margin-top: var(--m-space-2);
+}
+
+@media (max-width: 860px) {
+  .center,
+  .actions {
+    display: none;
+  }
+  .menuButton {
+    display: inline-flex;
+  }
+}

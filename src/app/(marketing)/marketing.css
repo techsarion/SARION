@@ -1,0 +1,239 @@
+/* ===========================================================================
+   Sarion marketing design system — premium, conversion-focused.
+   No Tailwind utilities are used on the marketing site. Tokens are scoped to
+   .marketingTheme so they never leak into the authenticated app.
+
+   Theme: tokens follow the shared next-themes class on <html> (set by the root
+   ThemeProvider), so toggling the theme anywhere — app or marketing — updates
+   the whole product. Light is the base; `html.dark` overrides below.
+   =========================================================================== */
+
+.marketingTheme {
+  /* Surfaces (light) */
+  --m-bg: #ffffff;
+  --m-bg-elev: #f6f7f9;
+  --m-card: #ffffff;
+  --m-card-hover: #f4f5f7;
+
+  /* Borders (light) */
+  --m-border: rgba(0, 0, 0, 0.09);
+  --m-border-strong: rgba(0, 0, 0, 0.16);
+
+  /* Text (light) */
+  --m-fg: #0b0d12;
+  --m-fg-muted: #5a616b;
+  --m-fg-subtle: #868d97;
+
+  /* Brand + status (Sarion blue) */
+  --m-primary: #2563eb;
+  --m-primary-hover: #1d4ed8;
+  --m-primary-fg: #ffffff;
+  --m-primary-soft: rgba(37, 99, 235, 0.1);
+  --m-success: #059669;
+  --m-success-soft: rgba(5, 150, 105, 0.12);
+  --m-warning: #b45309;
+  --m-warning-soft: rgba(217, 119, 6, 0.14);
+
+  /* Theme-aware chrome */
+  --m-nav-bg: rgba(255, 255, 255, 0.72);
+  --m-shadow: 0 24px 60px -30px rgba(15, 23, 42, 0.25);
+
+  /* Radius — honors the app-wide 2px maximum */
+  --m-radius: 2px;
+
+  /* Spacing scale */
+  --m-space-1: 4px;
+  --m-space-2: 8px;
+  --m-space-3: 12px;
+  --m-space-4: 16px;
+  --m-space-5: 24px;
+  --m-space-6: 32px;
+  --m-space-7: 48px;
+  --m-space-8: 64px;
+  --m-space-9: 96px;
+
+  /* Type scale */
+  --m-text-xs: 0.8125rem;
+  --m-text-sm: 0.9375rem;
+  --m-text-base: 1rem;
+  --m-text-lg: 1.125rem;
+  --m-text-xl: 1.375rem;
+  --m-text-2xl: 1.75rem;
+  --m-text-3xl: 2.25rem;
+  --m-text-4xl: 3rem;
+
+  /* Layout */
+  --m-container: 1120px;
+  --m-nav-h: 64px;
+
+  color-scheme: light;
+  background-color: var(--m-bg);
+  color: var(--m-fg);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Dark theme overrides — applied when the shared theme class is `dark`. */
+html.dark .marketingTheme {
+  --m-bg: #08090a;
+  --m-bg-elev: #0d0e10;
+  --m-card: #111214;
+  --m-card-hover: #16181b;
+
+  --m-border: rgba(255, 255, 255, 0.08);
+  --m-border-strong: rgba(255, 255, 255, 0.16);
+
+  --m-fg: #f3f4f6;
+  --m-fg-muted: #9aa1a9;
+  --m-fg-subtle: #6a7079;
+
+  --m-primary: #3b82f6;
+  --m-primary-hover: #2f74e6;
+  --m-primary-soft: rgba(59, 130, 246, 0.12);
+  --m-success: #34d399;
+  --m-success-soft: rgba(52, 211, 153, 0.14);
+  --m-warning: #fbbf24;
+  --m-warning-soft: rgba(251, 191, 36, 0.14);
+
+  --m-nav-bg: rgba(8, 9, 10, 0.72);
+  --m-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.8);
+
+  color-scheme: dark;
+}
+
+.marketingTheme h1,
+.marketingTheme h2,
+.marketingTheme h3,
+.marketingTheme h4 {
+  font-family: var(--font-heading), var(--font-sans), sans-serif;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--m-fg);
+  margin: 0;
+}
+
+.marketingTheme p {
+  margin: 0;
+}
+
+.marketingTheme a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* --- Layout helpers ------------------------------------------------------ */
+.mContainer {
+  width: 100%;
+  max-width: var(--m-container);
+  margin-inline: auto;
+  padding-inline: var(--m-space-5);
+}
+
+.mSection {
+  padding-block: var(--m-space-9);
+}
+
+.mSectionTight {
+  padding-block: var(--m-space-8);
+}
+
+/* --- Buttons ------------------------------------------------------------- */
+.mBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--m-space-2);
+  height: 42px;
+  padding-inline: var(--m-space-5);
+  border-radius: var(--m-radius);
+  border: 1px solid transparent;
+  font-size: var(--m-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.mBtnLg {
+  height: 48px;
+  padding-inline: var(--m-space-6);
+  font-size: var(--m-text-base);
+}
+
+/* Button color rules are scoped under .marketingTheme so they outrank the
+   `.marketingTheme a` link reset (these buttons are often <a> links). */
+.marketingTheme .mBtnPrimary {
+  background-color: var(--m-primary);
+  color: var(--m-primary-fg);
+}
+.marketingTheme .mBtnPrimary:hover {
+  background-color: var(--m-primary-hover);
+}
+
+/* Light theme: solid near-black button with white text (Vercel/Linear style). */
+.marketingTheme .mBtnSecondary {
+  background-color: var(--m-fg);
+  color: var(--m-bg);
+  border-color: var(--m-fg);
+}
+.marketingTheme .mBtnSecondary:hover {
+  opacity: 0.9;
+}
+
+/* Dark theme: revert to the transparent outline style. */
+html.dark .marketingTheme .mBtnSecondary {
+  background-color: transparent;
+  color: var(--m-fg);
+  border-color: var(--m-border-strong);
+  opacity: 1;
+}
+html.dark .marketingTheme .mBtnSecondary:hover {
+  background-color: var(--m-card-hover);
+}
+
+.marketingTheme .mBtnGhost {
+  background-color: transparent;
+  color: var(--m-fg-muted);
+}
+.marketingTheme .mBtnGhost:hover {
+  color: var(--m-fg);
+}
+
+/* --- Shared atoms -------------------------------------------------------- */
+.mEyebrow {
+  display: inline-block;
+  font-size: var(--m-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--m-primary);
+}
+
+.mBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--m-space-2);
+  padding: 2px 10px;
+  border-radius: var(--m-radius);
+  font-size: var(--m-text-xs);
+  font-weight: 600;
+}
+.mBadgeSuccess {
+  background: var(--m-success-soft);
+  color: var(--m-success);
+}
+.mBadgeWarning {
+  background: var(--m-warning-soft);
+  color: var(--m-warning);
+}
+.mBadgeInfo {
+  background: var(--m-primary-soft);
+  color: var(--m-primary);
+}

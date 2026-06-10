@@ -8,11 +8,17 @@ export type ActivityType =
   | "Client Created"
   | "Client Updated"
   | "Note Added"
-  | "Client Archived";
+  | "Client Archived"
+  | "Project Created"
+  | "Project Updated"
+  | "Status Changed"
+  | "Project Archived";
 
 interface LogActivityInput {
   agencyId: string;
   clientId: string;
+  /** Set for project-scoped events; omitted for client-only events. */
+  projectId?: string;
   type: ActivityType;
   description: string;
 }

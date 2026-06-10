@@ -1,0 +1,32 @@
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--m-space-5);
+  margin-top: var(--m-space-7);
+}
+
+.grid4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--m-space-5);
+  margin-top: var(--m-space-7);
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--m-space-6);
+}
+
+@media (max-width: 980px) {
+  .grid4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .grid3,
+  .grid4 {
+    grid-template-columns: 1fr;
+  }
+}

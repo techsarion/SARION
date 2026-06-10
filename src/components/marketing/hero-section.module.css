@@ -1,0 +1,71 @@
+.hero {
+  position: relative;
+  padding-block: var(--m-space-9);
+  border-bottom: 1px solid var(--m-border);
+  overflow: hidden;
+}
+
+/* Subtle single glow — no gradients everywhere. */
+.hero::before {
+  content: "";
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  width: 800px;
+  height: 500px;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(59, 130, 246, 0.1),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  align-items: center;
+  gap: var(--m-space-8);
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-space-4);
+}
+
+.headline {
+  font-size: var(--m-text-4xl);
+  max-width: 18ch;
+}
+
+.subheadline {
+  font-size: var(--m-text-lg);
+  color: var(--m-fg-muted);
+  line-height: 1.55;
+  max-width: 48ch;
+}
+
+.actions {
+  display: flex;
+  gap: var(--m-space-3);
+  margin-top: var(--m-space-2);
+  flex-wrap: wrap;
+}
+
+.note {
+  font-size: var(--m-text-sm);
+  color: var(--m-fg-subtle);
+}
+
+@media (max-width: 900px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: var(--m-space-7);
+  }
+  .headline {
+    font-size: var(--m-text-3xl);
+  }
+}

@@ -1,0 +1,5 @@
+.wrap {
+  max-width: 560px;
+  margin-inline: auto;
+  margin-top: var(--m-space-7);
+}
