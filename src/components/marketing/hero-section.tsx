@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { ScreenshotPlaceholder } from "./screenshot-placeholder";
+import { ProductShot } from "./product-shot";
 import styles from "./hero-section.module.css";
 
 export function HeroSection() {
@@ -10,19 +10,19 @@ export function HeroSection() {
         <div className={styles.copy}>
           <span className="mEyebrow">Agency operating system</span>
           <h1 className={styles.headline}>
-            Client management, projects, invoices, and client portals for
-            agencies.
+            Run your entire agency from one place.
           </h1>
           <p className={styles.subheadline}>
-            Stop managing clients across spreadsheets, email, and chat. Run your
-            entire agency from one workspace.
+            Clients, projects, invoices, a branded client portal, and team
+            collaboration — together in one workspace, so nothing slips through
+            the cracks.
           </p>
           <div className={styles.actions}>
             <Link href="/signup" className="mBtn mBtnPrimary mBtnLg">
               Start Free Trial
             </Link>
-            <Link href="/contact" className="mBtn mBtnSecondary mBtnLg">
-              Book Demo
+            <Link href="/features" className="mBtn mBtnSecondary mBtnLg">
+              See How It Works
             </Link>
           </div>
           <p className={styles.note}>
@@ -31,7 +31,13 @@ export function HeroSection() {
         </div>
 
         <div className={styles.visual}>
-          <ScreenshotPlaceholder label="Sarion Dashboard" />
+          <ProductShot
+            name="dashboard"
+            alt="The Sarion dashboard showing clients, active projects, unpaid totals, and recent activity"
+            url="trysarion.com/dashboard"
+            priority
+            sizes="(max-width: 900px) 100vw, 560px"
+          />
         </div>
       </div>
     </section>

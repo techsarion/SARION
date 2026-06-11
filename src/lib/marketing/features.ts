@@ -12,11 +12,15 @@ import {
   FolderKanban,
   Globe,
   FileText,
+  UsersRound,
+  Palette,
   SearchX,
   BellRing,
   CreditCard,
   type LucideIcon,
 } from "lucide-react";
+
+import type { ShotName } from "@/components/marketing/product-shot";
 
 export interface IconCard {
   icon: LucideIcon;
@@ -65,17 +69,22 @@ export const FEATURE_CARDS: IconCard[] = [
   },
   {
     icon: FileText,
-    title: "Invoicing",
+    title: "Invoices",
     description:
       "See what's paid, unpaid, and overdue so nothing slips through.",
   },
-];
-
-// Home — D. Screenshots section
-export const HOME_SCREENSHOTS: string[] = [
-  "Clients Dashboard",
-  "Projects Dashboard",
-  "Client Portal",
+  {
+    icon: UsersRound,
+    title: "Team Collaboration",
+    description:
+      "Invite teammates with the right access and work from one shared space.",
+  },
+  {
+    icon: Palette,
+    title: "Agency Branding",
+    description:
+      "Add your logo and name so your client portal looks like yours.",
+  },
 ];
 
 // Features page — alternating sections
@@ -83,7 +92,9 @@ export interface FeatureSection {
   eyebrow: string;
   title: string;
   features: string[];
-  screenshot: string;
+  /** Real screenshot shown alongside the section. */
+  shot: ShotName;
+  shotAlt: string;
 }
 
 export const FEATURE_SECTIONS: FeatureSection[] = [
@@ -91,13 +102,15 @@ export const FEATURE_SECTIONS: FeatureSection[] = [
     eyebrow: "Client Management",
     title: "Every client, fully organized",
     features: ["Client records", "Notes", "Activity history", "Search"],
-    screenshot: "Client Records",
+    shot: "clients",
+    shotAlt: "The Sarion clients list with company, email, and project counts",
   },
   {
     eyebrow: "Project Management",
     title: "Keep work moving forward",
     features: ["Status tracking", "Due dates", "Task checklists"],
-    screenshot: "Project Board",
+    shot: "projects",
+    shotAlt: "The Sarion projects view showing status and due dates per client",
   },
   {
     eyebrow: "Client Portal",
@@ -108,19 +121,22 @@ export const FEATURE_SECTIONS: FeatureSection[] = [
       "Progress visibility",
       "Shareable access",
     ],
-    screenshot: "Client Portal",
+    shot: "portal",
+    shotAlt: "The branded Sarion client portal with project updates and comments",
   },
   {
     eyebrow: "Invoices",
     title: "Never lose track of a payment",
     features: ["Paid", "Unpaid", "Overdue"],
-    screenshot: "Invoices",
+    shot: "invoices",
+    shotAlt: "The Sarion invoices list showing paid, unpaid, and overdue status",
   },
   {
     eyebrow: "Team Collaboration",
     title: "Work together, cleanly",
     features: ["Owner access", "Team member access", "Shared workflows"],
-    screenshot: "Team Settings",
+    shot: "team",
+    shotAlt: "The Sarion team settings with members, invites, and permissions",
   },
 ];
 

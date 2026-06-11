@@ -5,6 +5,7 @@ import { Pencil } from "lucide-react";
 
 import { requireAgency } from "@/server/auth-context";
 import { getClient } from "@/server/data/clients";
+import { getClientInvoices } from "@/server/data/invoices";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { NotesEditor } from "@/components/clients/notes-editor";
 import { ArchiveClientButton } from "@/components/clients/archive-client-button";
+import { InvoiceMiniList } from "@/components/invoices/invoice-mini-list";
+import { ACTIVITY_VARIANT } from "@/lib/activity-style";
 
 export const metadata: Metadata = { title: "Client · Sarion" };
 
@@ -36,16 +39,6 @@ function formatDateTime(date: Date) {
   }).format(date);
 }
 
-const ACTIVITY_VARIANT: Record<
-  string,
-  "info" | "success" | "warning" | "secondary"
-> = {
-  "Client Created": "success",
-  "Client Updated": "info",
-  "Note Added": "secondary",
-  "Client Archived": "warning",
-};
-
 export default async function ClientDetailPage({
   params,
 }: {
@@ -53,7 +46,11 @@ export default async function ClientDetailPage({
 }) {
   const { agencyId } = await requireAgency();
   const { id } = await params;
-  const client = await getClient(agencyId, id);
+  // Both reads only need the id from params — fetch them concurrently.
+  const [client, invoices] = await Promise.all([
+    getClient(agencyId, id),
+    getClientInvoices(agencyId, id),
+  ]);
 
   if (!client) notFound();
 
@@ -114,11 +111,20 @@ export default async function ClientDetailPage({
 
           {/* SECTION 4 — Invoices */}
           <Card>
-            <CardHeader>
-              <CardTitle>Invoices</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <CardTitle>Recent Invoices</CardTitle>
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/invoices/new?clientId=${client.id}`}>
+                  New Invoice
+                </Link>
+              </Button>
             </CardHeader>
             <CardContent>
-              <Placeholder text="No invoices yet" />
+              {invoices.length === 0 ? (
+                <Placeholder text="No invoices yet" />
+              ) : (
+                <InvoiceMiniList invoices={invoices} />
+              )}
             </CardContent>
           </Card>
         </div>

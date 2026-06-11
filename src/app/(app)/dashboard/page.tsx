@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   Users,
   FolderKanban,
   DollarSign,
-  UsersRound,
-  ArrowUpRight,
-  ArrowDownRight,
+  CalendarClock,
   type LucideIcon,
 } from "lucide-react";
 
-import { getSession } from "@/lib/session";
+import { requireAgency } from "@/server/auth-context";
+import { getDashboardData } from "@/server/data/dashboard";
+import { ensureWorkspaceSeeded } from "@/server/services/seed-workspace";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,135 +28,92 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { OnboardingCard } from "@/components/dashboard/onboarding-card";
+import { PROJECT_STATUS_VARIANT, statusLabel } from "@/lib/project-status";
+import { ACTIVITY_VARIANT } from "@/lib/activity-style";
 
-export const metadata: Metadata = {
-  title: "Dashboard · Sarion",
-};
+export const metadata: Metadata = { title: "Dashboard · Sarion" };
 
-interface Stat {
-  label: string;
-  value: string;
-  delta: string;
-  trend: "up" | "down";
-  icon: LucideIcon;
+function formatDate(date: Date | null) {
+  if (!date) return "—";
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(date);
 }
 
-const STATS: Stat[] = [
-  {
-    label: "Total Clients",
-    value: "48",
-    delta: "12.5%",
-    trend: "up",
-    icon: Users,
-  },
-  {
-    label: "Active Projects",
-    value: "23",
-    delta: "8.2%",
-    trend: "up",
-    icon: FolderKanban,
-  },
-  {
-    label: "Monthly Revenue",
-    value: "$42,580",
-    delta: "18.1%",
-    trend: "up",
-    icon: DollarSign,
-  },
-  {
-    label: "Team Members",
-    value: "9",
-    delta: "2.3%",
-    trend: "down",
-    icon: UsersRound,
-  },
-];
+function formatMoney(n: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(n);
+}
 
-type ProjectStatus = "In Progress" | "Review" | "Completed" | "Not Started";
-
-const STATUS_VARIANT: Record<
-  ProjectStatus,
-  "info" | "warning" | "success" | "secondary"
-> = {
-  "In Progress": "info",
-  Review: "warning",
-  Completed: "success",
-  "Not Started": "secondary",
-};
-
-const RECENT_PROJECTS: Array<{
-  name: string;
-  client: string;
-  status: ProjectStatus;
-  due: string;
-}> = [
-  {
-    name: "Website Redesign",
-    client: "Acme Corp",
-    status: "In Progress",
-    due: "May 24, 2026",
-  },
-  {
-    name: "Mobile App Development",
-    client: "TechFlow",
-    status: "In Progress",
-    due: "May 30, 2026",
-  },
-  {
-    name: "Marketing Campaign",
-    client: "BrightMind",
-    status: "Review",
-    due: "Jun 05, 2026",
-  },
-  {
-    name: "Brand Identity Design",
-    client: "Visionary",
-    status: "Completed",
-    due: "May 12, 2026",
-  },
-  {
-    name: "SEO Audit",
-    client: "Northwind",
-    status: "Not Started",
-    due: "Jun 18, 2026",
-  },
-];
-
-const ACTIVITY: Array<{ who: string; action: string; when: string }> = [
-  { who: "Sarah Johnson", action: "completed a task on Website Redesign", when: "2m ago" },
-  { who: "Michael Brown", action: "updated the TechFlow project", when: "15m ago" },
-  { who: "Emily Davis", action: "added a new client, BrightMind", when: "1h ago" },
-  { who: "David Wilson", action: "sent invoice #1042 to Acme Corp", when: "2h ago" },
-  { who: "Olivia Martin", action: "commented on Marketing Campaign", when: "4h ago" },
-];
-
-function initialsOf(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+function timeAgo(date: Date) {
+  const diff = Date.now() - date.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return formatDate(date);
 }
 
 export default async function DashboardPage() {
-  const session = await getSession();
-  const firstName = session?.user.name.split(" ")[0] ?? "there";
+  const { agencyId, name } = await requireAgency();
+
+  // First visit on a fresh agency seeds a starter workspace (idempotent).
+  await ensureWorkspaceSeeded(agencyId);
+
+  const { metrics, recentProjects, recentActivity, onboarding } =
+    await getDashboardData(agencyId);
+
+  const firstName = name.split(" ")[0] ?? "there";
+
+  const stats: { label: string; value: string; icon: LucideIcon }[] = [
+    {
+      label: "Total Clients",
+      value: String(metrics.totalClients),
+      icon: Users,
+    },
+    {
+      label: "Active Projects",
+      value: String(metrics.activeProjects),
+      icon: FolderKanban,
+    },
+    {
+      label: "Unpaid Total",
+      value: formatMoney(metrics.unpaidTotal),
+      icon: DollarSign,
+    },
+    {
+      label: "Due This Week",
+      value: String(metrics.dueThisWeek),
+      icon: CalendarClock,
+    },
+  ];
 
   return (
     <PageWrapper
-      title={`Good morning, ${firstName} 👋`}
+      title={`Welcome back, ${firstName} 👋`}
       description="Here's what's happening across your agency today."
-      action={<Button variant="brand">+ New Project</Button>}
+      action={
+        <Button asChild variant="brand">
+          <Link href="/projects/new">+ New Project</Link>
+        </Button>
+      }
     >
       <div className="space-y-6">
+        <OnboardingCard status={onboarding} />
+
         {/* Stat cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {STATS.map((stat) => {
+          {stats.map((stat) => {
             const Icon = stat.icon;
-            const TrendIcon =
-              stat.trend === "up" ? ArrowUpRight : ArrowDownRight;
             return (
               <Card key={stat.label}>
                 <CardContent className="p-6">
@@ -167,20 +125,9 @@ export default async function DashboardPage() {
                       <Icon className="h-5 w-5" />
                     </span>
                   </div>
-                  <div className="mt-4 flex items-end justify-between">
-                    <span className="text-3xl font-bold tracking-tight">
+                  <div className="mt-4">
+                    <span className="text-3xl font-bold tracking-tight tabular-nums">
                       {stat.value}
-                    </span>
-                    <span
-                      className={cn(
-                        "flex items-center gap-0.5 text-sm font-medium",
-                        stat.trend === "up"
-                          ? "text-emerald-600"
-                          : "text-destructive",
-                      )}
-                    >
-                      <TrendIcon className="h-4 w-4" />
-                      {stat.delta}
                     </span>
                   </div>
                 </CardContent>
@@ -192,43 +139,54 @@ export default async function DashboardPage() {
         {/* Recent projects + activity */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2">
-            <CardHeader className="flex-row items-center justify-between">
+            <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle>Recent Projects</CardTitle>
-              <Button variant="link" className="h-auto p-0 text-sm">
-                View all
+              <Button asChild variant="link" className="h-auto p-0 text-sm">
+                <Link href="/projects">View all</Link>
               </Button>
             </CardHeader>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="pl-6">Project</TableHead>
-                    <TableHead>Client</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="pr-6 text-right">Due date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {RECENT_PROJECTS.map((project) => (
-                    <TableRow key={project.name}>
-                      <TableCell className="pl-6 font-medium">
-                        {project.name}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {project.client}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={STATUS_VARIANT[project.status]}>
-                          {project.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="pr-6 text-right text-muted-foreground">
-                        {project.due}
-                      </TableCell>
+              {recentProjects.length === 0 ? (
+                <p className="px-6 py-10 text-center text-sm text-muted-foreground">
+                  No projects yet.
+                </p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="pl-6">Project</TableHead>
+                      <TableHead>Client</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="pr-6 text-right">Due date</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {recentProjects.map((project) => (
+                      <TableRow key={project.id}>
+                        <TableCell className="pl-6 font-medium">
+                          <Link
+                            href={`/projects/${project.id}`}
+                            className="hover:text-primary hover:underline"
+                          >
+                            {project.name}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {project.clientName}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={PROJECT_STATUS_VARIANT[project.status]}>
+                            {statusLabel(project.status)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="pr-6 text-right text-muted-foreground">
+                          {formatDate(project.dueDate)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
 
@@ -236,25 +194,30 @@ export default async function DashboardPage() {
             <CardHeader>
               <CardTitle>Recent Activity</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-5">
-              {ACTIVITY.map((item, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-xs font-semibold text-white">
-                    {initialsOf(item.who)}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm leading-snug">
-                      <span className="font-medium">{item.who}</span>{" "}
-                      <span className="text-muted-foreground">
-                        {item.action}
-                      </span>
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {item.when}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <CardContent>
+              {recentActivity.length === 0 ? (
+                <p className="py-10 text-center text-sm text-muted-foreground">
+                  No activity yet.
+                </p>
+              ) : (
+                <ul className="space-y-4">
+                  {recentActivity.map((item) => (
+                    <li key={item.id} className="flex flex-col gap-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <Badge variant={ACTIVITY_VARIANT[item.type] ?? "secondary"}>
+                          {item.type}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {timeAgo(item.createdAt)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </CardContent>
           </Card>
         </div>

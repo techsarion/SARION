@@ -1,17 +1,17 @@
-import { Search } from "lucide-react";
-
-import { Input } from "@/components/ui/input";
 import { UserMenu } from "@/components/layout/user-menu";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { MobileNav } from "@/components/layout/mobile-nav";
 
 interface HeaderProps {
   user: {
     name: string;
     email: string;
   };
+  role: string;
+  showUpgrade: boolean;
 }
 
-export function Header({ user }: HeaderProps) {
+export function Header({ user, role, showUpgrade }: HeaderProps) {
   const initials = user.name
     .split(" ")
     .map((part) => part[0])
@@ -20,21 +20,15 @@ export function Header({ user }: HeaderProps) {
     .toUpperCase();
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-4 border-b bg-card/80 px-4 backdrop-blur lg:px-6">
-      <div className="relative w-full max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search clients, projects, invoices..."
-          className="pl-9"
-          aria-label="Search"
-        />
-      </div>
+    <header className="flex h-16 shrink-0 items-center gap-3 border-b bg-card/80 px-4 backdrop-blur lg:px-6">
+      {/* Mobile nav — renders hamburger button + drawer, hidden on lg+ */}
+      <MobileNav role={role} showUpgrade={showUpgrade} />
 
-      <div className="ml-auto flex items-center gap-2">
-        <ThemeToggle />
-        <UserMenu name={user.name} email={user.email} initials={initials} />
-      </div>
+      {/* Spacer pushes controls to the right */}
+      <div className="flex-1" />
+
+      <ThemeToggle />
+      <UserMenu name={user.name} email={user.email} initials={initials} />
     </header>
   );
 }

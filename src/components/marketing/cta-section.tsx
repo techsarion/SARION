@@ -16,8 +16,8 @@ export function CTASection({
   subtext,
   primaryLabel = "Start Free Trial",
   primaryHref = "/signup",
-  secondaryLabel = "Book Demo",
-  secondaryHref = "/contact",
+  secondaryLabel = "See How It Works",
+  secondaryHref = "/features",
 }: CTASectionProps) {
   return (
     <section className="mSection">

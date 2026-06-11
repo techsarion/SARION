@@ -4,6 +4,12 @@ import type { Prisma, PrismaClient } from "@prisma/client";
 
 import { db } from "@/lib/db";
 
+/**
+ * Human-readable activity types (kept as display strings for consistency with
+ * the existing F3/F4/F6 trail and the badge maps that render them). Day 6 adds
+ * team + portal events. Most events are client-scoped; agency-level events
+ * (e.g. "Team Member Invited") omit clientId.
+ */
 export type ActivityType =
   | "Client Created"
   | "Client Updated"
@@ -12,12 +18,23 @@ export type ActivityType =
   | "Project Created"
   | "Project Updated"
   | "Status Changed"
-  | "Project Archived";
+  | "Project Archived"
+  | "Invoice Created"
+  | "Invoice Updated"
+  | "Invoice Paid"
+  | "Invoice Unpaid"
+  | "Invoice Archived"
+  | "Team Member Invited"
+  | "Team Member Joined"
+  | "Invite Cancelled"
+  | "Portal Comment"
+  | "Portal Viewed";
 
 interface LogActivityInput {
   agencyId: string;
-  clientId: string;
-  /** Set for project-scoped events; omitted for client-only events. */
+  /** Set for client-scoped events; omitted for agency-level events. */
+  clientId?: string;
+  /** Set for project-scoped events. */
   projectId?: string;
   type: ActivityType;
   description: string;
@@ -27,8 +44,8 @@ interface LogActivityInput {
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
 /**
- * Append a row to the client activity trail. Pass a transaction client to
- * record the activity atomically with its triggering mutation.
+ * Append a row to the activity trail. Pass a transaction client to record the
+ * activity atomically with its triggering mutation.
  */
 export async function logActivity(
   input: LogActivityInput,

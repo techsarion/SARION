@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 
 import { SectionHeader } from "@/components/marketing/section-header";
 import { PricingCard } from "@/components/marketing/pricing-card";
-import { PLANS, TRIAL_POINTS } from "@/lib/marketing/pricing";
+import { PLANS, TRIAL_POINTS, PRICING_FAQ } from "@/lib/marketing/pricing";
 import styles from "./pricing.module.css";
 
 export const metadata: Metadata = { title: "Pricing" };
@@ -42,6 +42,21 @@ export default function PricingPage() {
             <Link href="/signup" className="mBtn mBtnPrimary mBtnLg">
               Start Free Trial
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="mSectionTight">
+        <div className="mContainer">
+          <SectionHeader eyebrow="FAQ" title="Frequently asked questions" />
+          <div className={styles.faqGrid}>
+            {PRICING_FAQ.map((item) => (
+              <div key={item.question} className={styles.faqItem}>
+                <p className={styles.faqQuestion}>{item.question}</p>
+                <p className={styles.faqAnswer}>{item.answer}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

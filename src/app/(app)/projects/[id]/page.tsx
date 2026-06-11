@@ -5,6 +5,7 @@ import { Pencil } from "lucide-react";
 
 import { requireAgency } from "@/server/auth-context";
 import { getProject } from "@/server/data/projects";
+import { getClientInvoices } from "@/server/data/invoices";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArchiveProjectButton } from "@/components/projects/archive-project-button";
+import { InvoiceMiniList } from "@/components/invoices/invoice-mini-list";
 import { PROJECT_STATUS_VARIANT, statusLabel } from "@/lib/project-status";
+import { ACTIVITY_VARIANT } from "@/lib/activity-style";
 
 export const metadata: Metadata = { title: "Project · Sarion" };
 
@@ -37,16 +40,6 @@ function formatDateTime(date: Date) {
   }).format(date);
 }
 
-const ACTIVITY_VARIANT: Record<
-  string,
-  "info" | "success" | "warning" | "secondary"
-> = {
-  "Project Created": "success",
-  "Project Updated": "info",
-  "Status Changed": "info",
-  "Project Archived": "warning",
-};
-
 export default async function ProjectDetailPage({
   params,
 }: {
@@ -57,6 +50,10 @@ export default async function ProjectDetailPage({
   const project = await getProject(agencyId, id);
 
   if (!project) notFound();
+
+  // Invoices are client-scoped (no Invoice.projectId in the schema), so the
+  // project view surfaces the invoices for this project's client.
+  const invoices = await getClientInvoices(agencyId, project.client.id);
 
   return (
     <PageWrapper
@@ -132,13 +129,22 @@ export default async function ProjectDetailPage({
             </CardContent>
           </Card>
 
-          {/* Invoices — placeholder (future) */}
+          {/* Invoices (client-scoped) */}
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle>Invoices</CardTitle>
+              <Button asChild variant="ghost" size="sm">
+                <Link href={`/invoices?q=${encodeURIComponent(project.client.name)}`}>
+                  View All Invoices
+                </Link>
+              </Button>
             </CardHeader>
             <CardContent>
-              <Placeholder text="Invoices coming soon" />
+              {invoices.length === 0 ? (
+                <Placeholder text="No invoices for this client yet" />
+              ) : (
+                <InvoiceMiniList invoices={invoices} />
+              )}
             </CardContent>
           </Card>
         </div>

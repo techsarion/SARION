@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { MailCheck } from "lucide-react";
 
+import { siteConfig } from "@/config/site";
 import styles from "./contact-form.module.css";
 
 interface FormState {
@@ -33,25 +34,41 @@ export function ContactForm() {
       return;
     }
 
-    // TODO(lead-capture): This is a static demo — no submission is sent anywhere.
-    // Wire real lead handling here before launch. Connect ONE of:
-    //   • Resend            — send a transactional email to the team inbox
-    //   • Email forwarding   — forward the submission to a shared sales address
-    //   • CRM                — create a lead (e.g. HubSpot/Pipedrive) via API
-    //   • Database capture   — persist as a `Lead` row via a Server Action
-    // Recommended shape: extract the form into a Server Action that validates
-    // with Zod, then dispatches to the chosen provider. Keep this component's
-    // success/error UI as-is.
+    // Real submission via the visitor's email client — the message is delivered
+    // straight to the Sarion inbox. No fake "success" without sending.
+    const subject = `Sarion enquiry from ${values.name}`;
+    const body = [
+      `Name: ${values.name}`,
+      values.agency ? `Agency: ${values.agency}` : null,
+      `Email: ${values.email}`,
+      "",
+      values.message,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const mailto = `mailto:${siteConfig.contactEmail}?subject=${encodeURIComponent(
+      subject,
+    )}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
     setSubmitted(true);
   }
 
   if (submitted) {
     return (
       <div className={styles.success}>
-        <CheckCircle2 className={styles.successIcon} aria-hidden />
-        <h3 className={styles.successTitle}>Thanks — we&apos;ll be in touch</h3>
+        <MailCheck className={styles.successIcon} aria-hidden />
+        <h3 className={styles.successTitle}>Almost there</h3>
         <p className={styles.successText}>
-          Our team will reach out to {values.email} shortly.
+          Your email app should open with your message ready to send. If nothing
+          happens, email us directly at{" "}
+          <a
+            href={`mailto:${siteConfig.contactEmail}`}
+            className={styles.successLink}
+          >
+            {siteConfig.contactEmail}
+          </a>
+          . We usually reply within 24 hours.
         </p>
       </div>
     );
@@ -123,7 +140,7 @@ export function ContactForm() {
           Send Message
         </button>
         <Link href="/signup" className="mBtn mBtnSecondary mBtnLg">
-          Book Demo
+          Start Free Trial
         </Link>
       </div>
     </form>

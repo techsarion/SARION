@@ -56,7 +56,7 @@ export function ArchiveProjectButton({
         <DialogHeader>
           <DialogTitle>Archive {projectName}?</DialogTitle>
           <DialogDescription>
-            This project will be hidden from your lists. Its history is preserved
+            This project will be hidden from your lists. Its history is preserved 
             and nothing is permanently deleted.
           </DialogDescription>
         </DialogHeader>

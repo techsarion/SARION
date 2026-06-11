@@ -1,23 +1,24 @@
 import Link from "next/link";
 
 import { HeroSection } from "@/components/marketing/hero-section";
+import { FounderNote } from "@/components/marketing/founder-note";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { FeatureCard } from "@/components/marketing/feature-card";
 import { PricingCard } from "@/components/marketing/pricing-card";
-import { ScreenshotPlaceholder } from "@/components/marketing/screenshot-placeholder";
+import { ProductShot } from "@/components/marketing/product-shot";
 import { CTASection } from "@/components/marketing/cta-section";
+import { AboutSection } from "@/components/marketing/about-section";
 import { PLANS } from "@/lib/marketing/pricing";
-import {
-  PROBLEM_CARDS,
-  FEATURE_CARDS,
-  HOME_SCREENSHOTS,
-} from "@/lib/marketing/features";
+import { PROBLEM_CARDS, FEATURE_CARDS } from "@/lib/marketing/features";
 import styles from "./home.module.css";
 
 export default function HomePage() {
   return (
     <>
       <HeroSection />
+
+      {/* Honest credibility — a note from the team, not fake testimonials */}
+      <FounderNote />
 
       {/* B. Problem */}
       <section className="mSection">
@@ -35,14 +36,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* C. Features preview */}
-      <section className="mSection">
+      {/* C. Capabilities — honest "built for agencies" credibility */}
+      <section className="mSection mSectionAlt">
         <div className="mContainer">
           <SectionHeader
-            eyebrow="Everything in one place"
-            title="One workspace for your whole agency"
+            eyebrow="Built for modern agencies"
+            title="Everything you need to run client work"
+            description="One workspace for the day-to-day of running an agency — no add-ons, no patchwork of tools."
           />
-          <div className={styles.grid4}>
+          <div className={styles.grid3}>
             {FEATURE_CARDS.map((f) => (
               <FeatureCard key={f.title} {...f} />
             ))}
@@ -50,17 +52,29 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* D. Screenshots */}
+      {/* D. Real product screenshots */}
       <section className="mSection">
         <div className="mContainer">
           <SectionHeader
             eyebrow="A look inside"
-            title="Built to be clear, fast, and a pleasure to use"
+            title="Clear, fast, and a pleasure to use"
           />
-          <div className={styles.grid3}>
-            {HOME_SCREENSHOTS.map((label) => (
-              <ScreenshotPlaceholder key={label} label={label} ratio="tall" />
-            ))}
+          <div className={styles.shots}>
+            <ProductShot
+              name="portal"
+              alt="The branded Sarion client portal showing project updates and a comment thread"
+              url="trysarion.com/portal"
+            />
+            <ProductShot
+              name="clients"
+              alt="The Sarion clients list with companies, emails, and project counts"
+              url="trysarion.com/clients"
+            />
+            <ProductShot
+              name="invoices"
+              alt="The Sarion invoices list showing paid, unpaid, and overdue status"
+              url="trysarion.com/invoices"
+            />
           </div>
         </div>
       </section>
@@ -85,7 +99,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* F. Final CTA */}
+      {/* F. About + Team */}
+      <AboutSection />
+
+      {/* G. Final CTA */}
       <CTASection
         headline="Run your agency from one place."
         subtext="Start your 14-day free trial today. No credit card required."

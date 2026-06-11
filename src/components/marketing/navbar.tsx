@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 
 import { NAV_LINKS } from "@/lib/marketing/navigation";
@@ -10,21 +12,51 @@ import styles from "./navbar.module.css";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <header className={styles.navbar}>
       <div className={`mContainer ${styles.inner}`}>
-        <Link href="/" className={styles.brand} onClick={() => setOpen(false)}>
-          <span className={styles.brandMark}>S</span>
-          <span className={styles.brandText}>sarion</span>
+        <Link
+          href="/"
+          className={styles.brand}
+          onClick={() => setOpen(false)}
+          aria-label="Sarion home"
+        >
+          {/* Theme-aware wordmark — CSS toggles which renders (no JS flash). */}
+          <Image
+            src="/light-theme-logo-SARION.png"
+            alt="Sarion"
+            width={122}
+            height={40}
+            priority
+            className={`${styles.logo} ${styles.logoLight}`}
+          />
+          <Image
+            src="/dark-theme-logo-SARION.png"
+            alt="Sarion"
+            width={105}
+            height={40}
+            priority
+            className={`${styles.logo} ${styles.logoDark}`}
+          />
         </Link>
 
         <nav className={styles.center}>
-          {NAV_LINKS.map((link) => (
-            <Link key={link.href} href={link.href} className={styles.link}>
-              {link.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={styles.link}
+                data-active={active || undefined}
+                aria-current={active ? "page" : undefined}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className={styles.actions}>
@@ -55,6 +87,8 @@ export function Navbar() {
               key={link.href}
               href={link.href}
               className={styles.mobileLink}
+              data-active={pathname === link.href || undefined}
+              aria-current={pathname === link.href ? "page" : undefined}
               onClick={() => setOpen(false)}
             >
               {link.label}

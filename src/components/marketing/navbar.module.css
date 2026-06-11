@@ -17,46 +17,62 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: var(--m-space-2);
-}
-
-.brandMark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
   border-radius: var(--m-radius);
-  background: var(--m-primary);
-  color: #fff;
-  font-weight: 700;
-  font-size: var(--m-text-base);
 }
 
-.brandText {
-  font-family: var(--font-heading), var(--font-sans), sans-serif;
-  font-size: var(--m-text-xl);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+/* Theme-aware logo swap, keyed on the next-themes html.dark class. */
+.logo {
+  height: 40px;
+  width: auto;
+}
+.logoDark {
+  display: none;
+}
+:global(html.dark) .logoLight {
+  display: none;
+}
+:global(html.dark) .logoDark {
+  display: block;
 }
 
 .center {
   display: flex;
   align-items: center;
-  gap: var(--m-space-6);
+  gap: var(--m-space-2);
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
 }
 
 .link {
+  position: relative;
+  padding: var(--m-space-2) var(--m-space-3);
+  border-radius: var(--m-radius);
   font-size: var(--m-text-sm);
   font-weight: 500;
   color: var(--m-fg-muted);
-  transition: color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 .link:hover {
   color: var(--m-fg);
+  background: var(--m-card-hover);
+}
+/* Active route — clearer current-page indicator. */
+.link[data-active] {
+  color: var(--m-fg);
+  font-weight: 600;
+}
+.link[data-active]::after {
+  content: "";
+  position: absolute;
+  left: var(--m-space-3);
+  right: var(--m-space-3);
+  bottom: -2px;
+  height: 2px;
+  background: var(--m-primary);
+  border-radius: 2px;
 }
 
 .actions {
@@ -90,7 +106,11 @@
 .mobileLink {
   padding: var(--m-space-3) 0;
   font-size: var(--m-text-base);
+  color: var(--m-fg-muted);
+}
+.mobileLink[data-active] {
   color: var(--m-fg);
+  font-weight: 600;
 }
 
 .mobileRow {

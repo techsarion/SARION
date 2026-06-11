@@ -1,0 +1,49 @@
+.wrap {
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.updated {
+  margin-top: var(--m-space-2);
+  font-size: var(--m-text-sm);
+  color: var(--m-fg-subtle);
+}
+
+.prose {
+  margin-top: var(--m-space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-space-6);
+}
+
+.prose h2 {
+  font-size: var(--m-text-xl);
+  margin-bottom: var(--m-space-2);
+}
+
+.prose p,
+.prose li {
+  font-size: var(--m-text-base);
+  line-height: 1.7;
+  color: var(--m-fg-muted);
+}
+
+.prose p {
+  margin-top: var(--m-space-2);
+}
+
+.prose ul {
+  margin: var(--m-space-2) 0 0;
+  padding-left: var(--m-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-space-1);
+}
+
+.prose a {
+  color: var(--m-primary);
+  font-weight: 600;
+}
+.prose a:hover {
+  text-decoration: underline;
+}

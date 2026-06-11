@@ -6,14 +6,18 @@
   background: var(--m-card);
   border: 1px solid var(--m-border);
   border-radius: var(--m-radius);
+  box-shadow: var(--m-shadow-sm);
   transition:
     border-color 0.15s ease,
-    background-color 0.15s ease;
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+  will-change: transform;
 }
 
 .card:hover {
-  background: var(--m-card-hover);
   border-color: var(--m-border-strong);
+  box-shadow: var(--m-shadow-card-hover);
+  transform: translateY(-3px);
 }
 
 .iconWrap {

@@ -85,4 +85,13 @@
 .successText {
   font-size: var(--m-text-sm);
   color: var(--m-fg-muted);
+  line-height: 1.6;
+}
+
+.successLink {
+  color: var(--m-primary);
+  font-weight: 600;
+}
+.successLink:hover {
+  text-decoration: underline;
 }

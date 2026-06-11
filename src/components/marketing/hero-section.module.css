@@ -14,11 +14,7 @@
   width: 800px;
   height: 500px;
   transform: translateX(-50%);
-  background: radial-gradient(
-    ellipse at center,
-    rgba(59, 130, 246, 0.1),
-    transparent 70%
-  );
+  background: radial-gradient(ellipse at center, var(--m-glow), transparent 70%);
   pointer-events: none;
 }
 
@@ -37,14 +33,15 @@
 }
 
 .headline {
-  font-size: var(--m-text-4xl);
+  /* Scales up on large screens for a stronger hero, down on mobile. */
+  font-size: clamp(2.25rem, 1.4rem + 2.8vw, 3.5rem);
   max-width: 18ch;
 }
 
 .subheadline {
   font-size: var(--m-text-lg);
   color: var(--m-fg-muted);
-  line-height: 1.55;
+  line-height: 1.6;
   max-width: 48ch;
 }
 
@@ -64,8 +61,5 @@
   .inner {
     grid-template-columns: 1fr;
     gap: var(--m-space-7);
-  }
-  .headline {
-    font-size: var(--m-text-3xl);
   }
 }

@@ -9,34 +9,52 @@
    =========================================================================== */
 
 .marketingTheme {
-  /* Surfaces (light) */
-  --m-bg: #ffffff;
-  --m-bg-elev: #f6f7f9;
-  --m-card: #ffffff;
-  --m-card-hover: #f4f5f7;
+  /* ---------------------------------------------------------------------
+     Palette mirrors the dashboard tokens in src/app/globals.css exactly
+     (same HSL values), so marketing and app share one identity.
+     --------------------------------------------------------------------- */
 
-  /* Borders (light) */
-  --m-border: rgba(0, 0, 0, 0.09);
-  --m-border-strong: rgba(0, 0, 0, 0.16);
+  /* Surfaces (light) — background / secondary / card */
+  --m-bg: hsl(0 0% 100%);
+  --m-bg-elev: hsl(210 40% 96%); /* --secondary / --muted */
+  --m-card: hsl(0 0% 100%);
+  --m-card-hover: hsl(210 40% 96%);
 
-  /* Text (light) */
-  --m-fg: #0b0d12;
-  --m-fg-muted: #5a616b;
-  --m-fg-subtle: #868d97;
+  /* Borders (light) — --border, with a stronger step for hovers */
+  --m-border: hsl(214 32% 91%);
+  --m-border-strong: hsl(213 27% 84%);
 
-  /* Brand + status (Sarion blue) */
-  --m-primary: #2563eb;
-  --m-primary-hover: #1d4ed8;
-  --m-primary-fg: #ffffff;
-  --m-primary-soft: rgba(37, 99, 235, 0.1);
+  /* Text (light) — --foreground / --muted-foreground */
+  --m-fg: hsl(222 47% 11%);
+  --m-fg-muted: hsl(215 16% 47%);
+  --m-fg-subtle: hsl(215 18% 58%);
+
+  /* Brand + status (Sarion blue) — --primary */
+  --m-primary: hsl(221 83% 53%);
+  --m-primary-hover: hsl(221 83% 45%);
+  --m-primary-fg: hsl(0 0% 100%);
+  --m-primary-soft: hsl(221 83% 53% / 0.1);
+  /* Decorative brand glow for hero/CTA radial accents. */
+  --m-glow: hsl(221 83% 53% / 0.1);
   --m-success: #059669;
   --m-success-soft: rgba(5, 150, 105, 0.12);
   --m-warning: #b45309;
   --m-warning-soft: rgba(217, 119, 6, 0.14);
 
   /* Theme-aware chrome */
-  --m-nav-bg: rgba(255, 255, 255, 0.72);
+  --m-nav-bg: hsl(0 0% 100% / 0.72);
   --m-shadow: 0 24px 60px -30px rgba(15, 23, 42, 0.25);
+
+  /* Elevation scale (light) */
+  --m-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --m-shadow-card:
+    0 1px 3px rgba(15, 23, 42, 0.05), 0 8px 24px -16px rgba(15, 23, 42, 0.18);
+  --m-shadow-card-hover:
+    0 4px 12px -2px rgba(15, 23, 42, 0.1),
+    0 20px 44px -18px rgba(15, 23, 42, 0.28);
+
+  /* Focus ring (light) — --ring */
+  --m-ring: 0 0 0 3px hsl(221 83% 53% / 0.35);
 
   /* Radius — honors the app-wide 2px maximum */
   --m-radius: 2px;
@@ -78,28 +96,38 @@
 
 /* Dark theme overrides — applied when the shared theme class is `dark`. */
 html.dark .marketingTheme {
-  --m-bg: #08090a;
-  --m-bg-elev: #0d0e10;
-  --m-card: #111214;
-  --m-card-hover: #16181b;
+  /* Mirrors globals.css .dark tokens exactly (same HSL values). */
+  --m-bg: hsl(222 47% 7%); /* --background */
+  --m-bg-elev: hsl(222 47% 9%); /* --card level */
+  --m-card: hsl(222 47% 9%); /* --card */
+  --m-card-hover: hsl(217 33% 17%); /* --secondary / --accent */
 
-  --m-border: rgba(255, 255, 255, 0.08);
-  --m-border-strong: rgba(255, 255, 255, 0.16);
+  --m-border: hsl(217 33% 17%); /* --border */
+  --m-border-strong: hsl(217 33% 26%);
 
-  --m-fg: #f3f4f6;
-  --m-fg-muted: #9aa1a9;
-  --m-fg-subtle: #6a7079;
+  --m-fg: hsl(210 40% 98%); /* --foreground */
+  --m-fg-muted: hsl(215 20% 65%); /* --muted-foreground */
+  --m-fg-subtle: hsl(215 18% 50%);
 
-  --m-primary: #3b82f6;
-  --m-primary-hover: #2f74e6;
-  --m-primary-soft: rgba(59, 130, 246, 0.12);
+  --m-primary: hsl(217 91% 60%); /* --primary */
+  --m-primary-hover: hsl(217 91% 67%);
+  --m-primary-soft: hsl(217 91% 60% / 0.15);
+  --m-glow: hsl(217 91% 60% / 0.13);
   --m-success: #34d399;
   --m-success-soft: rgba(52, 211, 153, 0.14);
   --m-warning: #fbbf24;
   --m-warning-soft: rgba(251, 191, 36, 0.14);
 
-  --m-nav-bg: rgba(8, 9, 10, 0.72);
+  --m-nav-bg: hsl(222 47% 7% / 0.72);
   --m-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.8);
+
+  --m-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --m-shadow-card:
+    0 1px 3px rgba(0, 0, 0, 0.5), 0 10px 30px -18px rgba(0, 0, 0, 0.8);
+  --m-shadow-card-hover:
+    0 6px 18px -4px rgba(0, 0, 0, 0.6), 0 26px 52px -20px rgba(0, 0, 0, 0.9);
+
+  --m-ring: 0 0 0 3px hsl(217 91% 60% / 0.5);
 
   color-scheme: dark;
 }
@@ -141,6 +169,33 @@ html.dark .marketingTheme {
   padding-block: var(--m-space-8);
 }
 
+/* Alternating surface for clearer separation between adjacent sections. */
+.marketingTheme .mSectionAlt {
+  background: var(--m-bg-elev);
+  border-block: 1px solid var(--m-border);
+}
+
+/* Accessible keyboard focus for all interactive elements. */
+.marketingTheme a:focus-visible,
+.marketingTheme button:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: var(--m-ring);
+  border-radius: var(--m-radius);
+}
+
+/* Respect reduced-motion: neutralize hover lifts and transitions. */
+@media (prefers-reduced-motion: reduce) {
+  .marketingTheme *,
+  .marketingTheme *::before,
+  .marketingTheme *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+  .marketingTheme :hover {
+    transform: none !important;
+  }
+}
+
 /* --- Buttons ------------------------------------------------------------- */
 .mBtn {
   display: inline-flex;
@@ -158,7 +213,14 @@ html.dark .marketingTheme {
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease,
-    color 0.15s ease;
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+
+/* Subtle press feedback, shared by every button variant. */
+.mBtn:active {
+  transform: translateY(1px);
 }
 
 .mBtnLg {
@@ -172,6 +234,7 @@ html.dark .marketingTheme {
 .marketingTheme .mBtnPrimary {
   background-color: var(--m-primary);
   color: var(--m-primary-fg);
+  box-shadow: var(--m-shadow-sm);
 }
 .marketingTheme .mBtnPrimary:hover {
   background-color: var(--m-primary-hover);

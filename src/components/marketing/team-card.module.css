@@ -1,0 +1,51 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--m-space-4);
+  padding: var(--m-space-6);
+  background: var(--m-card);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  box-shadow: var(--m-shadow-sm);
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--m-primary-soft);
+  color: var(--m-primary);
+  font-size: var(--m-text-lg);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-space-1);
+}
+
+.name {
+  font-size: var(--m-text-base);
+  font-weight: 700;
+  color: var(--m-fg);
+}
+
+.title {
+  font-size: var(--m-text-sm);
+  font-weight: 600;
+  color: var(--m-primary);
+}
+
+.bio {
+  margin-top: var(--m-space-2);
+  font-size: var(--m-text-sm);
+  color: var(--m-fg-muted);
+  line-height: 1.55;
+}

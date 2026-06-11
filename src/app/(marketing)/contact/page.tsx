@@ -13,7 +13,7 @@ export default function ContactPage() {
         <SectionHeader
           eyebrow="Contact"
           title="Talk to the Sarion team"
-          description="Tell us about your agency and we'll help you get started — or book a demo."
+          description="Tell us about your agency and we'll help you get started — or book a demo. We usually reply within 24 hours."
         />
         <div className={styles.wrap}>
           <ContactForm />

@@ -33,20 +33,28 @@ model Agency {
   id                 String   @id @default(cuid())
   name               String
   logoUrl            String?
-  plan               String   @default("starter")
-  stripeCustomerId   String?
-  subscriptionStatus String   @default("trialing")
+  plan                 String   @default("starter")
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  subscriptionStatus   String   @default("trialing")
+  // Next invoice sequence number to assign (per-agency). Atomically incremented
+  // during invoice creation — see src/server/services/invoice-number.ts.
+  invoiceSequence    Int      @default(1)
+  // Whether the starter sample workspace has been seeded (F8 onboarding).
+  seeded             Boolean  @default(false)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt @default(now())
 
-  users        User[]
-  clients      Client[]
-  projects     Project[]
-  invoices     Invoice[]
-  tasks        Task[]
-  invoiceItems InvoiceItem[]
-  comments     Comment[]
-  activities   Activity[]
+  users          User[]
+  clients        Client[]
+  projects       Project[]
+  invoices       Invoice[]
+  tasks          Task[]
+  invoiceItems   InvoiceItem[]
+  comments       Comment[]
+  activities     Activity[]
+  teamInvites    TeamInvite[]
+  portalComments PortalComment[]
 }
 
 model User {
@@ -137,21 +145,22 @@ model Client {
   @@index([agencyId])
 }
 
-// Append-only audit trail for client-level events (F3 activity history).
+// Append-only audit trail. Most events are client-scoped, but agency-level
+// events (e.g. team member invited) have a null clientId.
 model Activity {
   id          String   @id @default(cuid())
   agencyId    String
-  clientId    String
+  clientId    String?
   projectId   String?
   type        String
   description String
   createdAt   DateTime @default(now())
 
   agency  Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client  Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
   project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  @@index([agencyId])
+  @@index([agencyId, createdAt])
   @@index([clientId, createdAt])
   @@index([projectId, createdAt])
 }
@@ -169,11 +178,12 @@ model Project {
   updatedAt   DateTime      @updatedAt @default(now())
   deletedAt   DateTime?
 
-  agency     Agency     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  client     Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  tasks      Task[]
-  comments   Comment[]
-  activities Activity[]
+  agency         Agency          @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  client         Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tasks          Task[]
+  comments       Comment[]
+  activities     Activity[]
+  portalComments PortalComment[]
 
   @@index([agencyId])
   @@index([clientId])
@@ -254,5 +264,41 @@ model Comment {
 
   @@index([clientId])
   @@index([projectId])
+  @@index([agencyId])
+}
+
+// F2 — pending team member invitations. Members always join with role=member;
+// acceptance is wired through the Better Auth signup hook (matched by email).
+model TeamInvite {
+  id         String    @id @default(cuid())
+  agencyId   String
+  name       String
+  email      String
+  token      String    @unique @default(cuid())
+  role       Role      @default(member)
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  @@index([agencyId])
+  @@index([email])
+}
+
+// F5 — client-portal discussion threads, scoped to a project. Authored by the
+// client (unauthenticated, identified by the portal token), so no user link.
+model PortalComment {
+  id        String   @id @default(cuid())
+  agencyId  String
+  projectId String
+  author    String
+  message   String
+  createdAt DateTime @default(now())
+
+  agency  Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
   @@index([agencyId])
 }

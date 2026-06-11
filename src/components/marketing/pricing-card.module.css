@@ -7,15 +7,35 @@
   background: var(--m-card);
   border: 1px solid var(--m-border);
   border-radius: var(--m-radius);
+  box-shadow: var(--m-shadow-sm);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--m-border-strong);
+  box-shadow: var(--m-shadow-card-hover);
+  transform: translateY(-3px);
 }
 
 .card[data-featured="true"] {
   border-color: var(--m-primary);
-  background: linear-gradient(
-    180deg,
-    rgba(59, 130, 246, 0.06),
-    var(--m-card) 40%
-  );
+  box-shadow:
+    0 0 0 1px var(--m-primary),
+    var(--m-shadow-card);
+  background: linear-gradient(180deg, var(--m-glow), var(--m-card) 40%);
+}
+
+/* Lift the highlighted plan on large screens for visual balance. */
+@media (min-width: 761px) {
+  .card[data-featured="true"] {
+    transform: translateY(-8px);
+  }
+  .card[data-featured="true"]:hover {
+    transform: translateY(-11px);
+  }
 }
 
 .flag {

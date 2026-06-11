@@ -33,36 +33,19 @@
   color: var(--m-fg-subtle);
 }
 
-.body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--m-space-3);
-  background:
-    radial-gradient(
-      circle at 50% 0%,
-      rgba(59, 130, 246, 0.05),
-      transparent 60%
-    ),
-    var(--m-card);
+.shot {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-.frame[data-ratio="wide"] .body {
-  aspect-ratio: 16 / 10;
+/* Theme-aware swap — keyed on the shared next-themes html.dark class. */
+.shotDark {
+  display: none;
 }
-.frame[data-ratio="tall"] .body {
-  aspect-ratio: 4 / 3;
+:global(html.dark) .shotLight {
+  display: none;
 }
-
-.icon {
-  width: 32px;
-  height: 32px;
-  color: var(--m-fg-subtle);
-}
-
-.label {
-  font-size: var(--m-text-sm);
-  font-weight: 500;
-  color: var(--m-fg-muted);
+:global(html.dark) .shotDark {
+  display: block;
 }

@@ -3,6 +3,7 @@ import { Inter, Geist } from "next/font/google";
 
 import { siteConfig } from "@/config/site";
 import { ThemeProvider } from "@/components/theme-provider";
+import { PlausibleScript } from "@/components/plausible-script";
 import "./globals.css";
 
 // Body — Inter 400
@@ -34,6 +35,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <PlausibleScript />
+      </head>
       <body className={`${inter.variable} ${geist.variable} font-sans`}>
         <ThemeProvider
           attribute="class"

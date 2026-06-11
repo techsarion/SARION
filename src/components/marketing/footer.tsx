@@ -1,26 +1,62 @@
 import Link from "next/link";
+import Image from "next/image";
 
-import { FOOTER_LINKS } from "@/lib/marketing/navigation";
+import {
+  PRODUCT_LINKS,
+  LEGAL_LINKS,
+  COMPANY_LINKS,
+} from "@/lib/marketing/navigation";
 import styles from "./footer.module.css";
+
+const COLUMNS: { heading: string; links: typeof PRODUCT_LINKS }[] = [
+  { heading: "Product", links: PRODUCT_LINKS },
+  { heading: "Company", links: COMPANY_LINKS },
+  { heading: "Legal", links: LEGAL_LINKS },
+];
 
 export function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={`mContainer ${styles.inner}`}>
-        <Link href="/" className={styles.brand}>
-          <span className={styles.brandMark}>S</span>
-          <span className={styles.brandText}>sarion</span>
-        </Link>
+        <div className={styles.brandCol}>
+          <Link href="/" className={styles.brand} aria-label="Sarion home">
+            <Image
+              src="/light-theme-logo-SARION.png"
+              alt="Sarion"
+              width={110}
+              height={36}
+              className={`${styles.logo} ${styles.logoLight}`}
+            />
+            <Image
+              src="/dark-theme-logo-SARION.png"
+              alt="Sarion"
+              width={95}
+              height={36}
+              className={`${styles.logo} ${styles.logoDark}`}
+            />
+          </Link>
+          <p className={styles.tagline}>
+            Run your entire agency from one workspace.
+          </p>
+        </div>
 
-        <nav className={styles.links}>
-          {FOOTER_LINKS.map((link) => (
-            <Link key={link.href} href={link.href} className={styles.link}>
-              {link.label}
-            </Link>
+        <div className={styles.columns}>
+          {COLUMNS.map((col) => (
+            <nav key={col.heading} className={styles.column} aria-label={col.heading}>
+              <h3 className={styles.heading}>{col.heading}</h3>
+              {col.links.map((link) => (
+                <Link key={link.label} href={link.href} className={styles.link}>
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
           ))}
-        </nav>
+        </div>
+      </div>
 
-        <p className={styles.copy}>Sarion © 2026</p>
+      <div className={`mContainer ${styles.bottom}`}>
+        <p className={styles.copy}>© 2026 Sarion. All rights reserved.</p>
+        <p className={styles.madeWith}>Built for modern agencies.</p>
       </div>
     </footer>
   );

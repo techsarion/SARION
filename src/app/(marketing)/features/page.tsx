@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Check } from "lucide-react";
 
 import { SectionHeader } from "@/components/marketing/section-header";
-import { ScreenshotPlaceholder } from "@/components/marketing/screenshot-placeholder";
+import { ProductShot } from "@/components/marketing/product-shot";
 import { CTASection } from "@/components/marketing/cta-section";
 import { FEATURE_SECTIONS } from "@/lib/marketing/features";
 import styles from "./features.module.css";
@@ -39,7 +39,12 @@ export default function FeaturesPage() {
                 </ul>
               </div>
               <div className={styles.visual}>
-                <ScreenshotPlaceholder label={section.screenshot} />
+                <ProductShot
+                  name={section.shot}
+                  alt={section.shotAlt}
+                  url={`trysarion.com/${section.shot}`}
+                  sizes="(max-width: 880px) 100vw, 540px"
+                />
               </div>
             </div>
           </div>
