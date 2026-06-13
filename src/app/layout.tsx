@@ -4,6 +4,7 @@ import { Inter, Geist, Fraunces } from "next/font/google";
 import { siteConfig } from "@/config/site";
 import { ThemeProvider } from "@/components/theme-provider";
 import { PlausibleScript } from "@/components/plausible-script";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import "./globals.css";
 
 // Body — Inter 400
@@ -76,6 +77,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <PlausibleScript />
+        <GoogleAnalytics />
       </head>
       <body
         className={`${inter.variable} ${geist.variable} ${fraunces.variable} font-sans`}

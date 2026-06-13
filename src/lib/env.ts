@@ -62,6 +62,7 @@ const schema = z.object({
   // ── Monitoring (optional) ─────────────────────────────────────────────────
   NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
   NEXT_PUBLIC_PLAUSIBLE_DOMAIN: z.string().optional(),
+  NEXT_PUBLIC_GA_ID: z.string().optional(),
 });
 
 function formatErrors(errors: z.ZodError): string {
