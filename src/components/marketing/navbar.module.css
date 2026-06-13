@@ -18,11 +18,12 @@
   display: inline-flex;
   align-items: center;
   border-radius: var(--m-radius);
+  flex-shrink: 0;
 }
 
 /* Theme-aware logo swap, keyed on the next-themes html.dark class. */
 .logo {
-  height: 40px;
+  height: 56px;
   width: auto;
 }
 .logoDark {
@@ -38,18 +39,19 @@
 .center {
   display: flex;
   align-items: center;
-  gap: var(--m-space-2);
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  justify-content: center;
+  flex: 1 1 auto;
+  gap: var(--m-space-1);
+  margin: 0 var(--m-space-4);
 }
 
 .link {
   position: relative;
-  padding: var(--m-space-2) var(--m-space-3);
+  padding: var(--m-space-2) var(--m-space-2);
   border-radius: var(--m-radius);
   font-size: var(--m-text-sm);
   font-weight: 500;
+  white-space: nowrap;
   color: var(--m-fg-muted);
   transition:
     color 0.15s ease,
@@ -67,8 +69,8 @@
 .link[data-active]::after {
   content: "";
   position: absolute;
-  left: var(--m-space-3);
-  right: var(--m-space-3);
+  left: var(--m-space-2);
+  right: var(--m-space-2);
   bottom: -2px;
   height: 2px;
   background: var(--m-primary);
@@ -79,6 +81,7 @@
   display: flex;
   align-items: center;
   gap: var(--m-space-3);
+  flex-shrink: 0;
 }
 
 .menuButton {

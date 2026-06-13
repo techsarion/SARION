@@ -1,3 +1,8 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+}
+
 .toggle {
   display: inline-flex;
   align-items: center;
@@ -23,4 +28,85 @@
 .placeholder {
   width: 18px;
   height: 18px;
+}
+
+/* --- One-time "switch to dark" hint bubble ------------------------------- */
+.hint {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--m-space-2);
+  padding: 8px 10px 8px 12px;
+  white-space: nowrap;
+  border: 1px solid var(--m-border-strong);
+  border-radius: var(--m-radius);
+  background: var(--m-fg);
+  color: var(--m-bg);
+  box-shadow: var(--m-shadow-card);
+  font-size: var(--m-text-xs);
+  font-weight: 500;
+  transform-origin: top right;
+  animation: hintIn 0.25s ease both;
+}
+
+/* Little pointer arrow up toward the toggle. */
+.hint::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 13px;
+  width: 9px;
+  height: 9px;
+  background: var(--m-fg);
+  border-left: 1px solid var(--m-border-strong);
+  border-top: 1px solid var(--m-border-strong);
+  transform: rotate(45deg);
+}
+
+.hintIcon {
+  color: var(--m-bg);
+  opacity: 0.85;
+}
+
+.hintText {
+  position: relative;
+}
+
+.hintClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 2px;
+  border: none;
+  border-radius: var(--m-radius);
+  background: transparent;
+  color: var(--m-bg);
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.hintClose:hover {
+  opacity: 1;
+}
+
+@keyframes hintIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint {
+    animation: none;
+  }
 }

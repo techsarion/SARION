@@ -1,7 +1,11 @@
 import type { EmailProvider } from "./types";
 import { ConsoleProvider } from "./providers/console";
 
-export type { SendPasswordResetOptions, SendInviteOptions } from "./types";
+export type {
+  SendPasswordResetOptions,
+  SendInviteOptions,
+  SendContactOptions,
+} from "./types";
 
 // Provider singleton — resolved once at first use.
 let _provider: EmailProvider | null = null;
@@ -45,4 +49,19 @@ export async function sendInviteEmail(opts: {
 }): Promise<void> {
   const provider = await getProvider();
   await provider.sendInvite(opts);
+}
+
+export async function sendContactEmail(opts: {
+  name: string;
+  email: string;
+  agency?: string;
+  message: string;
+}): Promise<void> {
+  const provider = await getProvider();
+  // Server-side inbox env var, falling back to the public contact address.
+  const to =
+    process.env.CONTACT_EMAIL ??
+    process.env.NEXT_PUBLIC_CONTACT_EMAIL ??
+    "hello@trysarion.com";
+  await provider.sendContact({ to, ...opts });
 }

@@ -2,6 +2,7 @@ import { Resend } from "resend";
 
 import type {
   EmailProvider,
+  SendContactOptions,
   SendInviteOptions,
   SendPasswordResetOptions,
 } from "../types";
@@ -10,6 +11,10 @@ import {
   passwordResetText,
   inviteHtml,
   inviteText,
+  contactHtml,
+  contactText,
+  contactAckHtml,
+  contactAckText,
 } from "../templates";
 
 /**
@@ -46,5 +51,38 @@ export class ResendProvider implements EmailProvider {
       text: inviteText(opts),
     });
     if (error) throw new Error(`Resend error: ${error.message}`);
+  }
+
+  async sendContact({ to, name, email, agency, message }: SendContactOptions) {
+    // 1. Notify the Sarion inbox. This is the critical send — if it fails we
+    //    throw so the visitor is told their message wasn't delivered.
+    const { error } = await this.resend.emails.send({
+      from: this.from,
+      to,
+      // Replies go straight to the visitor instead of the verified sender domain.
+      replyTo: email,
+      subject: `New enquiry from ${name}${agency ? ` (${agency})` : ""}`,
+      html: contactHtml({ name, email, agency, message }),
+      text: contactText({ name, email, agency, message }),
+    });
+    if (error) throw new Error(`Resend error: ${error.message}`);
+
+    // 2. Send a branded acknowledgement to the visitor. Best-effort — a failure
+    //    here must not fail the request, since the enquiry was already received.
+    try {
+      const { error: ackError } = await this.resend.emails.send({
+        from: this.from,
+        to: email,
+        replyTo: to,
+        subject: "We've received your message — Sarion",
+        html: contactAckHtml({ name, message, contactEmail: to }),
+        text: contactAckText({ name, message, contactEmail: to }),
+      });
+      if (ackError) {
+        console.error("[email] contact acknowledgement failed:", ackError.message);
+      }
+    } catch (err) {
+      console.error("[email] contact acknowledgement threw:", err);
+    }
   }
 }

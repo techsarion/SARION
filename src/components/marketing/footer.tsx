@@ -6,6 +6,7 @@ import {
   LEGAL_LINKS,
   COMPANY_LINKS,
 } from "@/lib/marketing/navigation";
+import { siteConfig } from "@/config/site";
 import styles from "./footer.module.css";
 
 const COLUMNS: { heading: string; links: typeof PRODUCT_LINKS }[] = [
@@ -38,6 +39,20 @@ export function Footer() {
           <p className={styles.tagline}>
             Run your entire agency from one workspace.
           </p>
+          <div className={styles.contact}>
+            <a
+              href={`mailto:${siteConfig.salesEmail}`}
+              className={styles.contactLink}
+            >
+              {siteConfig.salesEmail}
+            </a>
+            <a
+              href={`mailto:${siteConfig.supportEmail}`}
+              className={styles.contactLink}
+            >
+              {siteConfig.supportEmail}
+            </a>
+          </div>
         </div>
 
         <div className={styles.columns}>

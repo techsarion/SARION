@@ -45,6 +45,22 @@
   line-height: 1.55;
 }
 
+.contact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-space-1);
+  margin-top: var(--m-space-1);
+}
+.contactLink {
+  font-size: var(--m-text-sm);
+  font-weight: 500;
+  color: var(--m-fg-muted);
+  transition: color 0.15s ease;
+}
+.contactLink:hover {
+  color: var(--m-primary);
+}
+
 .columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

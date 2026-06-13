@@ -19,13 +19,14 @@ const EMPTY: FormState = { name: "", agency: "", email: "", message: "" };
 export function ContactForm() {
   const [values, setValues] = useState<FormState>(EMPTY);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function set<K extends keyof FormState>(key: K, value: string) {
     setValues((prev) => ({ ...prev, [key]: value }));
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
 
@@ -34,41 +35,57 @@ export function ContactForm() {
       return;
     }
 
-    // Real submission via the visitor's email client — the message is delivered
-    // straight to the Sarion inbox. No fake "success" without sending.
-    const subject = `Sarion enquiry from ${values.name}`;
-    const body = [
-      `Name: ${values.name}`,
-      values.agency ? `Agency: ${values.agency}` : null,
-      `Email: ${values.email}`,
-      "",
-      values.message,
-    ]
-      .filter(Boolean)
-      .join("\n");
+    // Real submission — the message is delivered straight to the Sarion inbox
+    // via Resend on the server. No fake "success" without a confirmed send.
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name.trim(),
+          email: values.email.trim(),
+          agency: values.agency.trim() || undefined,
+          message: values.message.trim(),
+        }),
+      });
 
-    const mailto = `mailto:${siteConfig.contactEmail}?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailto;
-    setSubmitted(true);
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as
+          | { error?: string }
+          | null;
+        setError(
+          data?.error ??
+            "Something went wrong sending your message. Please try again.",
+        );
+        return;
+      }
+
+      setSubmitted(true);
+    } catch {
+      setError(
+        "We couldn't reach the server. Please check your connection and try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (submitted) {
     return (
       <div className={styles.success}>
         <MailCheck className={styles.successIcon} aria-hidden />
-        <h3 className={styles.successTitle}>Almost there</h3>
+        <h3 className={styles.successTitle}>Message sent</h3>
         <p className={styles.successText}>
-          Your email app should open with your message ready to send. If nothing
-          happens, email us directly at{" "}
+          Thanks for reaching out — we&apos;ve received your message and usually
+          reply within 24 hours. You can also email us directly at{" "}
           <a
             href={`mailto:${siteConfig.contactEmail}`}
             className={styles.successLink}
           >
             {siteConfig.contactEmail}
           </a>
-          . We usually reply within 24 hours.
+          .
         </p>
       </div>
     );
@@ -136,8 +153,12 @@ export function ContactForm() {
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.actions}>
-        <button type="submit" className="mBtn mBtnPrimary mBtnLg">
-          Send Message
+        <button
+          type="submit"
+          className="mBtn mBtnPrimary mBtnLg"
+          disabled={submitting}
+        >
+          {submitting ? "Sending…" : "Send Message"}
         </button>
         <Link href="/signup" className="mBtn mBtnSecondary mBtnLg">
           Start Free Trial

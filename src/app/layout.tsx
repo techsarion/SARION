@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Geist } from "next/font/google";
+import { Inter, Geist, Fraunces } from "next/font/google";
 
 import { siteConfig } from "@/config/site";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -13,11 +13,22 @@ const inter = Inter({
   display: "swap",
 });
 
-// Headings — Geist 700
+// App headings — Geist 700 (dashboard / authenticated product)
 const geist = Geist({
   subsets: ["latin"],
   variable: "--font-heading",
   display: "swap",
+});
+
+// Marketing headings — Fraunces, an elegant variable serif with optical sizing.
+// Scoped to the marketing theme via --font-serif (see marketing.css); the app
+// keeps Geist. The `opsz` axis lets large display headings render with more
+// refined, high-contrast letterforms.
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+  axes: ["opsz"],
 });
 
 export const metadata: Metadata = {
@@ -66,10 +77,12 @@ export default function RootLayout({
       <head>
         <PlausibleScript />
       </head>
-      <body className={`${inter.variable} ${geist.variable} font-sans`}>
+      <body
+        className={`${inter.variable} ${geist.variable} ${fraunces.variable} font-sans`}
+      >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >

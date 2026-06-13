@@ -34,8 +34,15 @@
 
 .headline {
   /* Scales up on large screens for a stronger hero, down on mobile. */
-  font-size: clamp(2.25rem, 1.4rem + 2.8vw, 3.5rem);
-  max-width: 18ch;
+  font-size: clamp(2.5rem, 1.4rem + 3.4vw, 4rem);
+  max-width: 16ch;
+}
+
+/* Serif italic accent — the editorial flourish the serif heading unlocks. */
+.headline .accent {
+  font-style: italic;
+  color: var(--m-primary);
+  font-weight: 600;
 }
 
 .subheadline {

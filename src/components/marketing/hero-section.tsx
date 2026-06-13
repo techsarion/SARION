@@ -10,7 +10,8 @@ export function HeroSection() {
         <div className={styles.copy}>
           <span className="mEyebrow">Agency operating system</span>
           <h1 className={styles.headline}>
-            Run your entire agency from one place.
+            Run your entire agency from{" "}
+            <em className={styles.accent}>one place</em>.
           </h1>
           <p className={styles.subheadline}>
             Clients, projects, invoices, a branded client portal, and team

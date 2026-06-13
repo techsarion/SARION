@@ -82,7 +82,12 @@
 
   /* Layout */
   --m-container: 1120px;
-  --m-nav-h: 64px;
+  --m-nav-h: 80px;
+
+  /* Marketing headings use the elegant serif (Fraunces). Remapped here so every
+     marketing component that references --font-heading picks it up, while the
+     dashboard app keeps Geist. */
+  --font-heading: var(--font-serif);
 
   color-scheme: light;
   background-color: var(--m-bg);
@@ -136,12 +141,24 @@ html.dark .marketingTheme {
 .marketingTheme h2,
 .marketingTheme h3,
 .marketingTheme h4 {
-  font-family: var(--font-heading), var(--font-sans), sans-serif;
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  font-family: var(--font-heading), Georgia, "Times New Roman", serif;
+  /* Serifs carry weight differently — 600 reads as confident, not heavy. */
+  font-weight: 600;
+  line-height: 1.12;
+  /* Serif display type wants far less negative tracking than a sans. */
+  letter-spacing: -0.01em;
   color: var(--m-fg);
   margin: 0;
+  /* Enable ligatures + proportional figures for a polished, editorial finish. */
+  font-feature-settings: "liga" 1, "calt" 1;
+  text-wrap: balance;
+}
+
+/* Large display headings (hero h1) lean into the optical-size axis. */
+.marketingTheme h1 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variation-settings: "opsz" 144;
 }
 
 .marketingTheme p {
@@ -271,12 +288,26 @@ html.dark .marketingTheme .mBtnSecondary:hover {
 
 /* --- Shared atoms -------------------------------------------------------- */
 .mEyebrow {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--m-space-2);
+  padding: 5px 11px;
+  border-radius: var(--m-radius);
+  border: 1px solid var(--m-border);
+  background: var(--m-primary-soft);
   font-size: var(--m-text-xs);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--m-primary);
+}
+/* Leading status dot for the tag. */
+.mEyebrow::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--m-primary);
 }
 
 .mBadge {

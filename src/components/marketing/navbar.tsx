@@ -27,16 +27,16 @@ export function Navbar() {
           <Image
             src="/light-theme-logo-SARION.png"
             alt="Sarion"
-            width={122}
-            height={40}
+            width={244}
+            height={80}
             priority
             className={`${styles.logo} ${styles.logoLight}`}
           />
           <Image
             src="/dark-theme-logo-SARION.png"
             alt="Sarion"
-            width={105}
-            height={40}
+            width={211}
+            height={80}
             priority
             className={`${styles.logo} ${styles.logoDark}`}
           />

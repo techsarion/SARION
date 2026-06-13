@@ -1,5 +1,6 @@
 import type {
   EmailProvider,
+  SendContactOptions,
   SendInviteOptions,
   SendPasswordResetOptions,
 } from "../types";
@@ -18,6 +19,16 @@ export class ConsoleProvider implements EmailProvider {
   async sendInvite({ to, toName, agencyName, inviteUrl }: SendInviteOptions) {
     console.info(
       `\n[email:dev] TEAM INVITE\n  To:      ${toName} <${to}>\n  Agency:  ${agencyName}\n  URL:     ${inviteUrl}\n`,
+    );
+  }
+
+  async sendContact({ to, name, email, agency, message }: SendContactOptions) {
+    console.info(
+      `\n[email:dev] CONTACT ENQUIRY\n` +
+        `  Notification → ${to}\n` +
+        `  Auto-reply   → ${name} <${email}>\n` +
+        `  Agency:  ${agency ?? "—"}\n` +
+        `  Message: ${message}\n`,
     );
   }
 }

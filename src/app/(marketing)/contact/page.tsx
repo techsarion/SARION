@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { SectionHeader } from "@/components/marketing/section-header";
 import { ContactForm } from "@/components/marketing/contact-form";
+import { siteConfig } from "@/config/site";
 import styles from "./contact.module.css";
 
 export const metadata: Metadata = {
@@ -29,6 +30,33 @@ export default function ContactPage() {
         />
         <div className={styles.wrap}>
           <ContactForm />
+        </div>
+
+        <div className={styles.details}>
+          <div className={styles.card}>
+            <p className={styles.cardLabel}>Sales &amp; general</p>
+            <p className={styles.cardText}>
+              Questions about plans, demos, or getting started.
+            </p>
+            <a
+              href={`mailto:${siteConfig.salesEmail}`}
+              className={styles.cardEmail}
+            >
+              {siteConfig.salesEmail}
+            </a>
+          </div>
+          <div className={styles.card}>
+            <p className={styles.cardLabel}>Support</p>
+            <p className={styles.cardText}>
+              Already a customer and need a hand? We&apos;re here to help.
+            </p>
+            <a
+              href={`mailto:${siteConfig.supportEmail}`}
+              className={styles.cardEmail}
+            >
+              {siteConfig.supportEmail}
+            </a>
+          </div>
         </div>
       </div>
     </section>

@@ -54,6 +54,11 @@ const schema = z.object({
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().optional(),
 
+  // ── Contact (optional — falls back to NEXT_PUBLIC_CONTACT_EMAIL) ───────────
+  // Inbox that contact-form submissions are delivered to.
+  CONTACT_EMAIL: z.string().email().optional(),
+  NEXT_PUBLIC_CONTACT_EMAIL: z.string().optional(),
+
   // ── Monitoring (optional) ─────────────────────────────────────────────────
   NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
   NEXT_PUBLIC_PLAUSIBLE_DOMAIN: z.string().optional(),
