@@ -4,7 +4,11 @@ import { siteConfig } from "@/config/site";
 import { SectionHeader } from "@/components/marketing/section-header";
 import styles from "../legal.module.css";
 
-export const metadata: Metadata = { title: "Privacy Policy" };
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "How Sarion collects, uses, and protects your data.",
+  alternates: { canonical: "/privacy" },
+};
 
 const UPDATED = "June 11, 2026";
 
@@ -14,6 +18,7 @@ export default function PrivacyPage() {
       <div className="mContainer">
         <div className={styles.wrap}>
           <SectionHeader
+            as="h1"
             align="left"
             eyebrow="Legal"
             title="Privacy Policy"

@@ -11,6 +11,8 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Features", href: "/features" },
   { label: "Pricing", href: "/pricing" },
   { label: "Portal Demo", href: "/portal-demo" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ];
 
 /** Product column in the footer. */

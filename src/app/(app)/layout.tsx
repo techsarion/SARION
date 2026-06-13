@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { db } from "@/lib/db";
@@ -5,6 +6,12 @@ import { getSession } from "@/lib/session";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { Toaster } from "@/components/ui/sonner";
+
+// Authenticated workspace — never index. Private agency/client data must not
+// appear in search results.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function AppLayout({
   children,

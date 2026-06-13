@@ -13,7 +13,12 @@ import { Badge } from "@/components/ui/badge";
 import { PortalCommentForm } from "@/components/portal/portal-comment-form";
 import { PROJECT_STATUS_VARIANT, statusLabel } from "@/lib/project-status";
 
-export const metadata: Metadata = { title: "Client Portal · Sarion" };
+// Token-gated client portal — must never be indexed. Each portal exposes a
+// specific client's private project data behind an unguessable token.
+export const metadata: Metadata = {
+  title: "Client Portal · Sarion",
+  robots: { index: false, follow: false },
+};
 
 function formatDate(date: Date | null) {
   if (!date) return "—";

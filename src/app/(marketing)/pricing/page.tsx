@@ -7,7 +7,18 @@ import { PricingCard } from "@/components/marketing/pricing-card";
 import { PLANS, TRIAL_POINTS, PRICING_FAQ } from "@/lib/marketing/pricing";
 import styles from "./pricing.module.css";
 
-export const metadata: Metadata = { title: "Pricing" };
+export const metadata: Metadata = {
+  title: "Pricing",
+  description:
+    "Simple, transparent pricing for agencies. Every Sarion plan includes the full workspace — clients, projects, invoices, and client portals. Start with a 14-day free trial.",
+  alternates: { canonical: "/pricing" },
+  openGraph: {
+    title: "Pricing · Sarion",
+    description:
+      "Simple, transparent pricing for agencies. Every plan includes the full Sarion workspace. Start with a 14-day free trial.",
+    url: "/pricing",
+  },
+};
 
 export default function PricingPage() {
   return (
@@ -15,6 +26,7 @@ export default function PricingPage() {
       <section className="mSectionTight">
         <div className="mContainer">
           <SectionHeader
+            as="h1"
             eyebrow="Pricing"
             title="Pricing that scales with your agency"
             description="Every plan includes the full Sarion workspace. Upgrade as your team and client list grow."

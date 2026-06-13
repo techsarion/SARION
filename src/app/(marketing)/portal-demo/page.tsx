@@ -30,13 +30,23 @@ import {
 } from "@/lib/marketing/features";
 import styles from "./portal-demo.module.css";
 
-export const metadata: Metadata = { title: "Portal Demo" };
+export const metadata: Metadata = {
+  title: "Portal Demo",
+  description:
+    "See the Sarion client portal in action — a branded space where your clients track project progress, review work, and stay in the loop.",
+  alternates: { canonical: "/portal-demo" },
+};
 
 export default function PortalDemoPage() {
   return (
     <>
       <section className="mSectionTight">
         <div className="mContainer">
+          {/* SEO page heading — visually hidden so the demo mock leads the
+              visual design, but the page still has a single descriptive H1. */}
+          <h1 className="sr-only">
+            Sarion client portal demo — see what your clients would see
+          </h1>
           <div className={styles.demoNote}>
             <span className="mBadge mBadgeInfo">Live demo</span>
             <span>This is an example of what your clients would see.</span>

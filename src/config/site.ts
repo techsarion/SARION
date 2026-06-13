@@ -1,7 +1,10 @@
 export const siteConfig = {
   name: "Sarion",
   description: "Agency CRM + Client Portal for small agencies.",
-  url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  // Fall back to the production domain — never localhost. A localhost fallback
+  // here would poison metadataBase, canonical, OG and sitemap URLs if the env
+  // var were ever missing in a production build.
+  url: process.env.NEXT_PUBLIC_APP_URL ?? "https://trysarion.com",
   tagline: "Run Your Entire Agency From One Place.",
   // Public contact inbox. Contact-form submissions are sent here via mailto.
   // IMPORTANT: point this at a real, monitored mailbox before launch.

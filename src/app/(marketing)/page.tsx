@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
+import { siteConfig } from "@/config/site";
 import { HeroSection } from "@/components/marketing/hero-section";
 import { FounderNote } from "@/components/marketing/founder-note";
 import { SectionHeader } from "@/components/marketing/section-header";
@@ -12,9 +14,50 @@ import { PLANS } from "@/lib/marketing/pricing";
 import { PROBLEM_CARDS, FEATURE_CARDS } from "@/lib/marketing/features";
 import styles from "./home.module.css";
 
+export const metadata: Metadata = {
+  // Marketing layout already sets the homepage title/description; pin the
+  // canonical to the root so the indexable home URL is unambiguous.
+  alternates: { canonical: "/" },
+};
+
+// Organization + SoftwareApplication structured data. Helps Google understand
+// the brand and the product, and is eligible for rich results.
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${siteConfig.url}/#organization`,
+      name: siteConfig.name,
+      url: siteConfig.url,
+      logo: `${siteConfig.url}/SARION-ICON.png`,
+      email: siteConfig.contactEmail,
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: siteConfig.name,
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: siteConfig.url,
+      description: siteConfig.description,
+      publisher: { "@id": `${siteConfig.url}/#organization` },
+      offers: {
+        "@type": "Offer",
+        category: "subscription",
+        priceCurrency: "USD",
+      },
+    },
+  ],
+};
+
 export default function HomePage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
+      />
       <HeroSection />
 
       {/* Honest credibility — a note from the team, not fake testimonials */}

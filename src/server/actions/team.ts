@@ -99,7 +99,7 @@ export async function inviteTeamMember(
       where: { id: agencyId },
       select: { name: true },
     });
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://trysarion.com";
     await sendInviteEmail({
       to: email,
       toName: name,

@@ -7,7 +7,18 @@ import { CTASection } from "@/components/marketing/cta-section";
 import { FEATURE_SECTIONS } from "@/lib/marketing/features";
 import styles from "./features.module.css";
 
-export const metadata: Metadata = { title: "Features" };
+export const metadata: Metadata = {
+  title: "Features",
+  description:
+    "Client management, projects, invoicing, and branded client portals — everything an agency needs to run client work in one workspace. See what Sarion does.",
+  alternates: { canonical: "/features" },
+  openGraph: {
+    title: "Features · Sarion",
+    description:
+      "Client management, projects, invoicing, and branded client portals in one agency workspace.",
+    url: "/features",
+  },
+};
 
 export default function FeaturesPage() {
   return (
@@ -15,6 +26,7 @@ export default function FeaturesPage() {
       <section className="mSectionTight">
         <div className="mContainer">
           <SectionHeader
+            as="h1"
             eyebrow="Features"
             title="Everything agencies need to run client work"
             description="Sarion replaces the patchwork of tools agencies rely on with one focused workspace."

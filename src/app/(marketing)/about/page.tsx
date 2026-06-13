@@ -11,6 +11,13 @@ export const metadata: Metadata = {
   title: "About · Sarion",
   description:
     "Sarion is an independent software company building tools to help agencies run more efficiently.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About · Sarion",
+    description:
+      "Sarion is an independent software company building tools to help agencies run more efficiently.",
+    url: "/about",
+  },
 };
 
 const CHALLENGES = [

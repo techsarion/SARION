@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
 import { Logo } from "@/components/layout/logo";
+
+// Auth screens (login/signup/reset) carry no SEO value — keep them out of the index.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default function AuthLayout({
   children,

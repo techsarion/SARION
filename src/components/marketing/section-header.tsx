@@ -5,6 +5,11 @@ interface SectionHeaderProps {
   title: string;
   description?: string;
   align?: "left" | "center";
+  /**
+   * Heading level for the title. Use "h1" for the page-lead header (exactly
+   * one per page, for SEO); defaults to "h2" for in-page section headers.
+   */
+  as?: "h1" | "h2";
 }
 
 export function SectionHeader({
@@ -12,6 +17,7 @@ export function SectionHeader({
   title,
   description,
   align = "center",
+  as: Heading = "h2",
 }: SectionHeaderProps) {
   return (
     <div
@@ -19,7 +25,7 @@ export function SectionHeader({
       data-align={align}
     >
       {eyebrow && <span className="mEyebrow">{eyebrow}</span>}
-      <h2 className={styles.title}>{title}</h2>
+      <Heading className={styles.title}>{title}</Heading>
       {description && <p className={styles.description}>{description}</p>}
     </div>
   );
