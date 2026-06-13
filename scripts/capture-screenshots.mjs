@@ -13,7 +13,9 @@ import { dirname, join } from "node:path";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "public", "screenshots");
-const BASE = "http://localhost:3000";
+// Must match BETTER_AUTH_URL's origin or Better Auth rejects the login as
+// cross-origin (protected pages would then redirect back to /login).
+const BASE = process.env.SHOT_BASE_URL ?? "http://localhost:3001";
 const CHROME =
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 
@@ -35,25 +37,31 @@ async function main() {
     const page = await browser.newPage();
     await page.setViewport(VIEWPORT);
 
-    // --- Sign up a fresh account (seeds Acme Marketing + project + invoice) ---
-    const email = `shots.${Date.now()}@example.com`;
-    await page.goto(`${BASE}/signup`, { waitUntil: "networkidle0" });
-    await page.type("#name", "Alex Morgan");
-    await page.type("#email", email);
-    await page.type("#password", "Password123!");
+    // --- Log in as the curated Northbeam Studio owner (see prisma/seed.ts) ----
+    // Captures the hand-built launch demo data rather than a throwaway account.
+    await page.goto(`${BASE}/login`, { waitUntil: "networkidle0" });
+    // Dev-mode first compile can lag; wait for the form before typing.
+    await page.waitForSelector("#email", { timeout: 60000 });
+    await page.type("#email", "owner@northbeam.studio");
+    await page.type("#password", "Sarion!Demo123");
     await Promise.all([
       page.waitForNavigation({ waitUntil: "networkidle0", timeout: 60000 }),
       page.click('button[type="submit"]'),
     ]);
-    // Land on dashboard; seed runs on first load. Reload to render seeded data.
     await page.goto(`${BASE}/dashboard`, { waitUntil: "networkidle0" });
     await wait(1200);
 
-    // Newest client = the one just seeded for this account → portal token.
-    const client = await db.client.findFirst({
-      orderBy: { createdAt: "desc" },
-      select: { portalToken: true },
-    });
+    // Portal shot → Orbit Labs (its Website Redesign project has an active
+    // client/team discussion thread, so the portal looks alive).
+    const client =
+      (await db.client.findFirst({
+        where: { email: "founders@orbitlabs.io" },
+        select: { portalToken: true },
+      })) ??
+      (await db.client.findFirst({
+        orderBy: { createdAt: "desc" },
+        select: { portalToken: true },
+      }));
     const portalPath = client ? `/portal/${client.portalToken}` : null;
 
     const routes = [
