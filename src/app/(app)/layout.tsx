@@ -39,31 +39,39 @@ export default async function AppLayout({
   let showUpgrade = true;
   let banner: BannerState = { kind: "none" };
   if (agencyId) {
-    const agency = await db.agency.findUnique({
-      where: { id: agencyId },
-      select: {
-        subscriptionStatus: true,
-        trialEndsAt: true,
-        planTier: true,
-        foundingMember: true,
-      },
-    });
-    if (agency) {
-      const now = Date.now();
-      showUpgrade = agency.subscriptionStatus !== "active";
-      if (isTrialing(agency, now)) {
-        banner = {
-          kind: "trialing",
-          daysLeft: trialDaysLeft(agency, now) ?? 0,
-          founding: agency.foundingMember,
-        };
-      } else if (
-        isTrialExpired(agency, now) ||
-        agency.subscriptionStatus === "canceled" ||
-        agency.subscriptionStatus === "past_due"
-      ) {
-        banner = { kind: "expired" };
+    try {
+      const agency = await db.agency.findUnique({
+        where: { id: agencyId },
+        select: {
+          subscriptionStatus: true,
+          trialEndsAt: true,
+          planTier: true,
+          foundingMember: true,
+        },
+      });
+      if (agency) {
+        const now = Date.now();
+        showUpgrade = agency.subscriptionStatus !== "active";
+        if (isTrialing(agency, now)) {
+          banner = {
+            kind: "trialing",
+            daysLeft: trialDaysLeft(agency, now) ?? 0,
+            founding: agency.foundingMember,
+          };
+        } else if (
+          isTrialExpired(agency, now) ||
+          agency.subscriptionStatus === "canceled" ||
+          agency.subscriptionStatus === "past_due"
+        ) {
+          banner = { kind: "expired" };
+        }
       }
+    } catch (err) {
+      // The trial banner / upgrade prompt is non-critical chrome. If this query
+      // fails (e.g. a schema/migration drift between the deployed build and the
+      // database), the authenticated app must still render — never white-screen
+      // the whole workspace over a banner.
+      console.error("[app-layout] billing-status query failed:", err);
     }
   }
 

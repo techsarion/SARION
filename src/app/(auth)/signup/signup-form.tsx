@@ -23,6 +23,10 @@ const INVITE_ERROR: Record<string, string> = {
   accepted: "This invite has already been used.",
 };
 
+// Pragmatic email shape check — mirrors the server's validation so users get a
+// friendly inline message instead of the raw "[body.email] Invalid input" 400.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 type StrengthLevel = 0 | 1 | 2 | 3;
 
 function getPasswordStrength(pw: string): { level: StrengthLevel; label: string } {
@@ -35,6 +39,28 @@ function getPasswordStrength(pw: string): { level: StrengthLevel; label: string 
   if (score <= 1) return { level: 1, label: "Weak" };
   if (score === 2) return { level: 2, label: "Fair" };
   return { level: 3, label: "Strong" };
+}
+
+/**
+ * Map Better Auth / server validation errors to clean, user-facing copy so a
+ * raw string like "[body.email] Invalid input" never reaches the UI.
+ */
+function friendlyAuthError(err: { message?: string; code?: string }): string {
+  const raw = (err.message ?? "").toLowerCase();
+  if (raw.includes("email") && (raw.includes("invalid") || raw.includes("valid"))) {
+    return "Please enter a valid email address (e.g. you@agency.com).";
+  }
+  if (raw.includes("already") || err.code === "USER_ALREADY_EXISTS") {
+    return "An account with this email already exists. Try logging in instead.";
+  }
+  if (raw.includes("password")) {
+    return "Password must be at least 8 characters.";
+  }
+  // Never surface internal field-path noise (e.g. "[body.x] ...").
+  if (!err.message || err.message.startsWith("[")) {
+    return "Could not create your account. Please check your details and try again.";
+  }
+  return err.message;
 }
 
 const STRENGTH_COLOR: Record<StrengthLevel, string> = {
@@ -63,11 +89,17 @@ export function SignupForm({ inviteToken, invite }: SignupFormProps) {
 
     const formData = new FormData(event.currentTarget);
     const name = String(formData.get("name") ?? "").trim();
-    const email = (invitedEmail ?? String(formData.get("email") ?? "")).trim();
+    const email = (invitedEmail ?? String(formData.get("email") ?? ""))
+      .trim()
+      .toLowerCase();
     const pw = String(formData.get("password") ?? "");
 
     if (!name || !email || !pw) {
       setError("Please fill in all fields.");
+      return;
+    }
+    if (!EMAIL_RE.test(email)) {
+      setError("Please enter a valid email address (e.g. you@agency.com).");
       return;
     }
     if (pw.length < 8) {
@@ -85,13 +117,19 @@ export function SignupForm({ inviteToken, invite }: SignupFormProps) {
     } as Parameters<typeof authClient.signUp.email>[0]);
 
     if (signUpError) {
-      setError(signUpError.message ?? "Could not create your account.");
+      setError(friendlyAuthError(signUpError));
       setIsLoading(false);
       return;
     }
 
     trackEvent(AnalyticsEvent.Signup);
-    router.push("/dashboard");
+    // Invited members join an existing, already-trusted workspace → straight in.
+    // Brand-new signups land on the "verify your email" notice first.
+    if (inviteToken) {
+      router.push("/dashboard");
+    } else {
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+    }
     router.refresh();
   }
 
