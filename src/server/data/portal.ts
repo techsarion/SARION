@@ -2,6 +2,7 @@ import "server-only";
 
 import { db } from "@/lib/db";
 import { logActivity } from "@/server/activity";
+import { effectivePlanTier, getPlanLimits } from "@/config/plans";
 
 /**
  * Portal reads are authenticated by the client's unguessable portalToken (not a
@@ -26,6 +27,8 @@ export interface PortalData {
   client: { id: string; agencyId: string; name: string };
   agency: { name: string; logoUrl: string | null };
   projects: PortalProject[];
+  /** Whether to show the "Powered by Sarion" footer (Free plan only). */
+  showPoweredBy: boolean;
 }
 
 export async function getPortalData(token: string): Promise<PortalData | null> {
@@ -35,7 +38,15 @@ export async function getPortalData(token: string): Promise<PortalData | null> {
       id: true,
       agencyId: true,
       name: true,
-      agency: { select: { name: true, logoUrl: true } },
+      agency: {
+        select: {
+          name: true,
+          logoUrl: true,
+          planTier: true,
+          subscriptionStatus: true,
+          trialEndsAt: true,
+        },
+      },
       projects: {
         where: { deletedAt: null },
         orderBy: { createdAt: "desc" },
@@ -55,13 +66,21 @@ export async function getPortalData(token: string): Promise<PortalData | null> {
 
   if (!client) return null;
 
+  const { planTier, subscriptionStatus, trialEndsAt, ...agencyDisplay } =
+    client.agency;
+  const effectiveTier = effectivePlanTier(
+    { planTier, subscriptionStatus, trialEndsAt },
+    Date.now(),
+  );
+
   return {
     client: { id: client.id, agencyId: client.agencyId, name: client.name },
-    agency: client.agency,
+    agency: agencyDisplay,
     projects: client.projects.map(({ portalComments, ...p }) => ({
       ...p,
       comments: portalComments,
     })),
+    showPoweredBy: getPlanLimits(effectiveTier).poweredByBranding,
   };
 }
 

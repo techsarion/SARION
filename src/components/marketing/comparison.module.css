@@ -1,0 +1,51 @@
+.wrap {
+  margin-top: var(--m-space-7);
+  overflow-x: auto;
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background: var(--m-card);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.table th,
+.table td {
+  padding: var(--m-space-4) var(--m-space-5);
+  text-align: left;
+  border-bottom: 1px solid var(--m-border);
+  font-size: var(--m-text-sm);
+}
+
+.table thead th {
+  font-weight: 600;
+  color: var(--m-fg);
+  background: color-mix(in srgb, var(--m-fg) 4%, var(--m-card));
+}
+
+.rowHead {
+  font-weight: 600;
+  color: var(--m-fg);
+}
+
+.sarionCol {
+  background: color-mix(in srgb, var(--m-primary) 7%, var(--m-card));
+  font-weight: 600;
+  color: var(--m-fg);
+}
+
+.yes {
+  color: var(--m-success);
+  font-weight: 700;
+}
+
+.no {
+  color: var(--m-fg-muted);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}

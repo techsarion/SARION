@@ -274,7 +274,9 @@ async function main() {
     data: {
       name: "Northbeam Studio",
       logoUrl: LOGO_DATA_URI,
-      plan: "growth",
+      planTier: "growth",
+      billingInterval: "monthly",
+      foundingMember: true,
       subscriptionStatus: "active",
       seeded: true, // prevents the auto-seed (ensureWorkspaceSeeded) from running
       createdAt: at(-210),

@@ -3,9 +3,16 @@ import { redirect } from "next/navigation";
 
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { isTrialing, isTrialExpired, trialDaysLeft } from "@/config/plans";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { TrialBanner } from "@/components/billing/trial-banner";
 import { Toaster } from "@/components/ui/sonner";
+
+type BannerState =
+  | { kind: "trialing"; daysLeft: number; founding: boolean }
+  | { kind: "expired" }
+  | { kind: "none" };
 
 // Authenticated workspace — never index. Private agency/client data must not
 // appear in search results.
@@ -27,17 +34,37 @@ export default async function AppLayout({
   const role = (session.user.role ?? "member") as string;
   const agencyId = session.user.agencyId as string | undefined;
 
-  // Determine whether to show the upgrade prompt. Agencies on an active or
-  // trialing subscription have already converted — hide the upsell for them.
+  // Determine whether to show the upgrade prompt + trial banner. Agencies on an
+  // active subscription have fully converted — hide the upsell for them.
   let showUpgrade = true;
+  let banner: BannerState = { kind: "none" };
   if (agencyId) {
     const agency = await db.agency.findUnique({
       where: { id: agencyId },
-      select: { subscriptionStatus: true },
+      select: {
+        subscriptionStatus: true,
+        trialEndsAt: true,
+        planTier: true,
+        foundingMember: true,
+      },
     });
-    showUpgrade = !["active", "trialing"].includes(
-      agency?.subscriptionStatus ?? "",
-    );
+    if (agency) {
+      const now = Date.now();
+      showUpgrade = agency.subscriptionStatus !== "active";
+      if (isTrialing(agency, now)) {
+        banner = {
+          kind: "trialing",
+          daysLeft: trialDaysLeft(agency, now) ?? 0,
+          founding: agency.foundingMember,
+        };
+      } else if (
+        isTrialExpired(agency, now) ||
+        agency.subscriptionStatus === "canceled" ||
+        agency.subscriptionStatus === "past_due"
+      ) {
+        banner = { kind: "expired" };
+      }
+    }
   }
 
   return (
@@ -49,6 +76,7 @@ export default async function AppLayout({
           role={role}
           showUpgrade={showUpgrade}
         />
+        <TrialBanner state={banner} />
         <main className="flex flex-1 flex-col overflow-hidden">
           {children}
         </main>

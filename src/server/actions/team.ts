@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { requireAgency } from "@/server/auth-context";
 import { logActivity } from "@/server/activity";
 import { sendInviteEmail } from "@/lib/email";
+import { checkLimit } from "@/server/services/plan-limits";
 
 const inviteSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(120),
@@ -20,7 +21,12 @@ export interface InviteInput {
 
 export type InviteResult =
   | { ok: true; token: string }
-  | { ok: false; error: string; fieldErrors?: Record<string, string[]> };
+  | {
+      ok: false;
+      error: string;
+      fieldErrors?: Record<string, string[]>;
+      code?: "limit";
+    };
 
 const INVITE_TTL_DAYS = 14;
 
@@ -62,6 +68,26 @@ export async function inviteTeamMember(
       error: "That person is already a team member.",
       fieldErrors: { email: ["Already a team member."] },
     };
+  }
+
+  // Plan gate — seats are (current members + outstanding invites). Block the
+  // invite if accepting it would exceed the tier's team-member quota.
+  const seatCheck = await checkLimit(agencyId, "teamMembers");
+  if (!seatCheck.ok) {
+    return { ok: false, error: seatCheck.message!, code: "limit" };
+  }
+  if (seatCheck.limit !== null) {
+    const pendingInvites = await db.teamInvite.count({
+      where: { agencyId, acceptedAt: null, expiresAt: { gt: new Date() } },
+    });
+    if (seatCheck.used + pendingInvites >= seatCheck.limit) {
+      return {
+        ok: false,
+        error:
+          "You've used all your team seats (including pending invites) on this plan. Upgrade to invite more.",
+        code: "limit",
+      };
+    }
   }
 
   const expiresAt = new Date();

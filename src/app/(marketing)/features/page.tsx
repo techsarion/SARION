@@ -4,6 +4,8 @@ import { Check } from "lucide-react";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { ProductShot } from "@/components/marketing/product-shot";
 import { CTASection } from "@/components/marketing/cta-section";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbSchema } from "@/lib/seo/schema";
 import { FEATURE_SECTIONS } from "@/lib/marketing/features";
 import styles from "./features.module.css";
 
@@ -12,6 +14,13 @@ export const metadata: Metadata = {
   description:
     "Client management, projects, invoicing, and branded client portals — everything an agency needs to run client work in one workspace. See what Sarion does.",
   alternates: { canonical: "/features" },
+  keywords: [
+    "agency client management software",
+    "agency project management",
+    "agency invoicing software",
+    "branded client portal",
+    "agency workspace tool",
+  ],
   openGraph: {
     title: "Features · Sarion",
     description:
@@ -20,9 +29,15 @@ export const metadata: Metadata = {
   },
 };
 
+const BREADCRUMB_SCHEMA = breadcrumbSchema([
+  { name: "Home", path: "/" },
+  { name: "Features", path: "/features" },
+]);
+
 export default function FeaturesPage() {
   return (
     <>
+      <JsonLd id="features-breadcrumb-schema" data={BREADCRUMB_SCHEMA} />
       <section className="mSectionTight">
         <div className="mContainer">
           <SectionHeader

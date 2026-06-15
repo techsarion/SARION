@@ -4,6 +4,9 @@ import Stripe from "stripe";
 // Not used for processing agency client invoices in MVP.
 // Lazy singleton: the Stripe constructor throws on an empty key, so we defer
 // instantiation to request time (never at module-evaluation / build time).
+//
+// All plan/pricing data lives in src/config/plans.ts (single source of truth).
+// Server-side billing orchestration lives in src/lib/billing.ts.
 let _stripe: Stripe | null = null;
 
 export function getStripe(): Stripe {
@@ -15,22 +18,6 @@ export function getStripe(): Stripe {
   return _stripe;
 }
 
-export const PLANS = {
-  starter: {
-    name: "Starter",
-    priceId: process.env.STRIPE_PRICE_STARTER ?? "",
-    amount: 2900,
-  },
-  growth: {
-    name: "Growth",
-    priceId: process.env.STRIPE_PRICE_GROWTH ?? "",
-    amount: 5900,
-  },
-  agency: {
-    name: "Agency",
-    priceId: process.env.STRIPE_PRICE_AGENCY ?? "",
-    amount: 9900,
-  },
-} as const;
-
-export type PlanKey = keyof typeof PLANS;
+export function isStripeConfigured(): boolean {
+  return Boolean(process.env.STRIPE_SECRET_KEY);
+}

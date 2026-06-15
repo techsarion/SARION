@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireAgency } from "@/server/auth-context";
 import { logActivity } from "@/server/activity";
+import { checkLimit } from "@/server/services/plan-limits";
 
 // --- Validation ----------------------------------------------------------
 
@@ -27,7 +28,14 @@ export type ClientInput = z.input<typeof clientSchema>;
 
 export type ActionResult =
   | { ok: true; clientId: string }
-  | { ok: false; error: string; fieldErrors?: Record<string, string[]> };
+  | {
+      ok: false;
+      error: string;
+      fieldErrors?: Record<string, string[]>;
+      // "limit" signals the UI to surface an upgrade prompt instead of a
+      // generic form error.
+      code?: "limit";
+    };
 
 const notesSchema = z.object({
   notes: z.preprocess(emptyToNull, z.string().trim().max(5000).nullable()),
@@ -37,6 +45,12 @@ const notesSchema = z.object({
 
 export async function createClient(input: ClientInput): Promise<ActionResult> {
   const { agencyId } = await requireAgency();
+
+  // Plan gate — enforce the tier's client quota before creating.
+  const limit = await checkLimit(agencyId, "clients");
+  if (!limit.ok) {
+    return { ok: false, error: limit.message!, code: "limit" };
+  }
 
   const parsed = clientSchema.safeParse(input);
   if (!parsed.success) {

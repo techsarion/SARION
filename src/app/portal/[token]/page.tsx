@@ -142,6 +142,18 @@ export default async function PortalPage({
           ))
         )}
       </main>
+
+      {data.showPoweredBy && (
+        <footer className="border-t bg-card py-4 text-center text-xs text-muted-foreground">
+          Powered by{" "}
+          <a
+            href="https://trysarion.com"
+            className="font-medium underline underline-offset-2"
+          >
+            Sarion
+          </a>
+        </footer>
+      )}
     </div>
   );
 }

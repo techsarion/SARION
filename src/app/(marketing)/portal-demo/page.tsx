@@ -28,6 +28,8 @@ import {
   PORTAL_INVOICES as INVOICES,
   PORTAL_ACTIVITY as ACTIVITY,
 } from "@/lib/marketing/features";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbSchema } from "@/lib/seo/schema";
 import styles from "./portal-demo.module.css";
 
 export const metadata: Metadata = {
@@ -35,11 +37,23 @@ export const metadata: Metadata = {
   description:
     "See the Sarion client portal in action — a branded space where your clients track project progress, review work, and stay in the loop.",
   alternates: { canonical: "/portal-demo" },
+  keywords: [
+    "client portal demo",
+    "agency client portal example",
+    "branded client portal software",
+    "client project tracking portal",
+  ],
 };
+
+const BREADCRUMB_SCHEMA = breadcrumbSchema([
+  { name: "Home", path: "/" },
+  { name: "Portal Demo", path: "/portal-demo" },
+]);
 
 export default function PortalDemoPage() {
   return (
     <>
+      <JsonLd id="portal-demo-breadcrumb-schema" data={BREADCRUMB_SCHEMA} />
       <section className="mSectionTight">
         <div className="mContainer">
           {/* SEO page heading — visually hidden so the demo mock leads the

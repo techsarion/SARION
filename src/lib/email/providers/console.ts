@@ -1,34 +1,18 @@
-import type {
-  EmailProvider,
-  SendContactOptions,
-  SendInviteOptions,
-  SendPasswordResetOptions,
-} from "../types";
+import type { EmailProvider, OutgoingEmail } from "../types";
 
 /**
- * Development fallback — logs email content to the console instead of sending.
- * Automatically used when RESEND_API_KEY is absent. Never use in production.
+ * Development fallback — logs a message summary to the console instead of
+ * sending. Used automatically when RESEND_API_KEY is absent. Never in prod.
  */
 export class ConsoleProvider implements EmailProvider {
-  async sendPasswordReset({ to, resetUrl }: SendPasswordResetOptions) {
+  async send(message: OutgoingEmail): Promise<void> {
     console.info(
-      `\n[email:dev] PASSWORD RESET\n  To:  ${to}\n  URL: ${resetUrl}\n`,
-    );
-  }
-
-  async sendInvite({ to, toName, agencyName, inviteUrl }: SendInviteOptions) {
-    console.info(
-      `\n[email:dev] TEAM INVITE\n  To:      ${toName} <${to}>\n  Agency:  ${agencyName}\n  URL:     ${inviteUrl}\n`,
-    );
-  }
-
-  async sendContact({ to, name, email, agency, message }: SendContactOptions) {
-    console.info(
-      `\n[email:dev] CONTACT ENQUIRY\n` +
-        `  Notification → ${to}\n` +
-        `  Auto-reply   → ${name} <${email}>\n` +
-        `  Agency:  ${agency ?? "—"}\n` +
-        `  Message: ${message}\n`,
+      `\n[email:dev] ─────────────────────────────\n` +
+        `  From:     ${message.from}\n` +
+        `  To:       ${Array.isArray(message.to) ? message.to.join(", ") : message.to}\n` +
+        (message.replyTo ? `  Reply-To: ${message.replyTo}\n` : "") +
+        `  Subject:  ${message.subject}\n` +
+        `─────────────────────────────────────────\n`,
     );
   }
 }

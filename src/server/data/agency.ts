@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 export async function getAgency(agencyId: string) {
   return db.agency.findUnique({
     where: { id: agencyId },
-    select: { id: true, name: true, logoUrl: true, plan: true },
+    select: { id: true, name: true, logoUrl: true, planTier: true },
   });
 }
 
@@ -15,7 +15,10 @@ export async function getAgencyBilling(agencyId: string) {
   return db.agency.findUnique({
     where: { id: agencyId },
     select: {
-      plan: true,
+      planTier: true,
+      billingInterval: true,
+      foundingMember: true,
+      trialEndsAt: true,
       subscriptionStatus: true,
       stripeCustomerId: true,
       stripeSubscriptionId: true,

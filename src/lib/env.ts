@@ -45,10 +45,29 @@ const schema = z.object({
   // ── Stripe (optional — absent = graceful degradation in billing UI) ───────
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
-  STRIPE_PRICE_STARTER: z.string().optional(),
-  STRIPE_PRICE_GROWTH: z.string().optional(),
-  STRIPE_PRICE_AGENCY: z.string().optional(),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
+
+  // Standard prices — monthly + yearly, one per paid tier. All optional so the
+  // app degrades gracefully (billing UI shows a "not configured" banner).
+  STRIPE_PRICE_STARTER_MONTHLY: z.string().optional(),
+  STRIPE_PRICE_STARTER_YEARLY: z.string().optional(),
+  STRIPE_PRICE_GROWTH_MONTHLY: z.string().optional(),
+  STRIPE_PRICE_GROWTH_YEARLY: z.string().optional(),
+  STRIPE_PRICE_AGENCY_MONTHLY: z.string().optional(),
+  STRIPE_PRICE_AGENCY_YEARLY: z.string().optional(),
+
+  // Founding (locked-forever) prices — fall back to standard prices if unset.
+  STRIPE_PRICE_STARTER_MONTHLY_FOUNDING: z.string().optional(),
+  STRIPE_PRICE_STARTER_YEARLY_FOUNDING: z.string().optional(),
+  STRIPE_PRICE_GROWTH_MONTHLY_FOUNDING: z.string().optional(),
+  STRIPE_PRICE_GROWTH_YEARLY_FOUNDING: z.string().optional(),
+  STRIPE_PRICE_AGENCY_MONTHLY_FOUNDING: z.string().optional(),
+  STRIPE_PRICE_AGENCY_YEARLY_FOUNDING: z.string().optional(),
+
+  // Founding offer toggle — "false" closes founding status to NEW signups
+  // (existing founding members are unaffected). Public so the marketing site
+  // can hide the badge accordingly.
+  NEXT_PUBLIC_FOUNDING_OFFER_OPEN: z.string().optional(),
 
   // ── Email (optional — absent = ConsoleProvider fallback) ──────────────────
   RESEND_API_KEY: z.string().optional(),

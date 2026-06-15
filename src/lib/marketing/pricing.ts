@@ -1,52 +1,50 @@
 /**
- * Marketing pricing data (display only — decoupled from billing config in
- * src/config/plans.ts). Feature bullets are intentionally generic marketing
- * copy: they describe capabilities, not specific quotas, so we never imply
- * limits or functionality that the product doesn't actually enforce.
+ * Marketing pricing data — DERIVED from the single source of truth in
+ * src/config/plans.ts so the website can never advertise a price or feature set
+ * that billing doesn't honour.
  */
+import {
+  PLAN_LIST,
+  yearlySavingMonths,
+  type BillingInterval,
+  type PlanTier,
+} from "@/config/plans";
+
 export interface MarketingPlan {
+  tier: PlanTier;
   name: string;
-  price: number;
-  description: string;
+  tagline: string;
+  monthly: number;
+  yearly: number;
+  /** Months free when paying annually (0 for Free). */
+  yearlySavingMonths: number;
   features: string[];
-  featured?: boolean;
+  featured: boolean;
+  /** Free plan uses a softer CTA; paid plans start the trial. */
+  ctaLabel: string;
 }
 
-export const PLANS: MarketingPlan[] = [
-  {
-    name: "Starter",
-    price: 29,
-    description: "For solo operators getting organized.",
-    features: ["Clients", "Projects", "Invoices", "Client Portal"],
-  },
-  {
-    name: "Growth",
-    price: 59,
-    description: "For growing agencies with a team.",
-    featured: true,
-    features: [
-      "Everything in Starter",
-      "Team Collaboration",
-      "Branded Portal",
-      "Priority Support",
-    ],
-  },
-  {
-    name: "Agency",
-    price: 99,
-    description: "For established agencies at scale.",
-    features: [
-      "Everything in Growth",
-      "Advanced Customization",
-      "Priority Onboarding",
-    ],
-  },
-];
+export const MARKETING_PLANS: MarketingPlan[] = PLAN_LIST.map((p) => ({
+  tier: p.tier,
+  name: p.name,
+  tagline: p.tagline,
+  monthly: p.pricing.monthly,
+  yearly: p.pricing.yearly,
+  yearlySavingMonths: yearlySavingMonths(p.tier),
+  features: p.features,
+  featured: Boolean(p.featured),
+  ctaLabel: p.tier === "free" ? "Start Free" : "Start Free Trial",
+}));
+
+export function priceFor(plan: MarketingPlan, interval: BillingInterval): number {
+  return interval === "yearly" ? plan.yearly : plan.monthly;
+}
 
 export const TRIAL_POINTS: string[] = [
+  "14-day free trial of every premium feature",
   "No credit card required",
+  "Free migration included",
   "Cancel anytime",
-  "No long-term contracts",
 ];
 
 export interface FAQItem {
@@ -56,33 +54,43 @@ export interface FAQItem {
 
 export const PRICING_FAQ: FAQItem[] = [
   {
-    question: "Can I change plans later?",
+    question: "What is founding pricing?",
     answer:
-      "Yes. Upgrade or downgrade at any time from your settings — changes take effect right away.",
+      "Sign up during launch and your price is locked in for life. Even as we raise prices later, founding members keep their rate forever — across upgrades, downgrades, and renewals.",
   },
   {
-    question: "What happens after the trial?",
+    question: "Is there a free plan?",
     answer:
-      "Your 14-day trial includes the full workspace. When it ends, choose a plan to keep going. Your data stays put while you decide.",
+      "Yes. The Free plan lets you manage one client and one project with the full client portal — no time limit, no card. Upgrade whenever you outgrow it.",
   },
   {
     question: "Do I need a credit card to start?",
     answer:
-      "No. You can start your free trial without entering any payment details.",
+      "No. Start a 14-day trial of the full premium workspace without entering any payment details. When it ends, pick a plan or stay on Free.",
   },
   {
-    question: "Can I cancel anytime?",
+    question: "How does annual billing work?",
     answer:
-      "Yes. There are no long-term contracts — cancel whenever you like and you won't be billed again.",
+      "Switch to yearly billing and get two months free — you pay for ten months and get twelve. You can change between monthly and yearly anytime.",
+  },
+  {
+    question: "Can I change plans later?",
+    answer:
+      "Anytime, from your billing settings. Upgrades and downgrades are prorated automatically by Stripe, and your founding price is preserved.",
+  },
+  {
+    question: "What happens to my data if I downgrade or cancel?",
+    answer:
+      "Nothing is deleted. Your workspace stays intact — you just regain access to everything the moment you upgrade again. Cancel anytime, no contracts.",
+  },
+  {
+    question: "Do you help me migrate from another tool?",
+    answer:
+      "Yes — free migration assistance is included, and Agency customers get concierge onboarding with founder support.",
   },
   {
     question: "What counts as a team member?",
     answer:
-      "Anyone you invite into your agency workspace — an owner or a member. Your clients use the client portal and are never counted as team members.",
-  },
-  {
-    question: "How does billing work?",
-    answer:
-      "Plans are billed monthly per agency. You'll be charged when your trial ends, then on the same date each month. No long-term contracts.",
+      "Anyone you invite into your agency workspace. Your clients use the client portal and are never counted as team members.",
   },
 ];

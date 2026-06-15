@@ -81,16 +81,42 @@ export const auth = betterAuth({
           }
 
           // No invite token → brand-new agency, signer becomes the owner.
+          // New agencies start on a 14-day no-card trial (full premium preview)
+          // and lock in founding pricing while the launch offer is open.
+          const { TRIAL_DAYS, isFoundingOfferOpen } = await import(
+            "@/config/plans"
+          );
+          const trialEndsAt = new Date();
+          trialEndsAt.setDate(trialEndsAt.getDate() + TRIAL_DAYS);
+
           const agency = await db.agency.create({
-            data: { name: `${user.name}'s Agency` },
+            data: {
+              name: `${user.name}'s Agency`,
+              planTier: "free",
+              subscriptionStatus: "trialing",
+              trialEndsAt,
+              foundingMember: isFoundingOfferOpen(),
+            },
           });
           return {
             data: { ...user, agencyId: agency.id, role: "owner" },
           };
         },
         after: async (user) => {
-          // Finalize invite acceptance for members who joined via a token.
           const u = user as { email: string; name: string; agencyId?: string; role?: string };
+
+          // New agency owners get a branded welcome email (best-effort).
+          if (u.role === "owner") {
+            try {
+              const { sendEmail } = await import("@/lib/email");
+              await sendEmail("welcome", u.email, { name: u.name });
+            } catch (err) {
+              console.error("[auth] welcome email failed:", err);
+            }
+            return;
+          }
+
+          // Finalize invite acceptance for members who joined via a token.
           if (u.role !== "member" || !u.agencyId) return;
 
           const invite = await db.teamInvite.findFirst({

@@ -1,63 +1,50 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { siteConfig } from "@/config/site";
 import { HeroSection } from "@/components/marketing/hero-section";
 import { FounderNote } from "@/components/marketing/founder-note";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { FeatureCard } from "@/components/marketing/feature-card";
-import { PricingCard } from "@/components/marketing/pricing-card";
+import { PricingPlans } from "@/components/marketing/pricing-plans";
 import { ProductShot } from "@/components/marketing/product-shot";
 import { CTASection } from "@/components/marketing/cta-section";
 import { AboutSection } from "@/components/marketing/about-section";
-import { PLANS } from "@/lib/marketing/pricing";
+import { isFoundingOfferOpen } from "@/config/plans";
 import { PROBLEM_CARDS, FEATURE_CARDS } from "@/lib/marketing/features";
+import { HOME_FAQ } from "@/lib/marketing/faq";
+import { HomeFaq } from "@/components/marketing/home-faq";
+import { Comparison } from "@/components/marketing/comparison";
+import { JsonLd } from "@/components/seo/json-ld";
+import { softwareApplicationSchema, faqSchema } from "@/lib/seo/schema";
 import styles from "./home.module.css";
 
 export const metadata: Metadata = {
   // Marketing layout already sets the homepage title/description; pin the
   // canonical to the root so the indexable home URL is unambiguous.
   alternates: { canonical: "/" },
-};
-
-// Organization + SoftwareApplication structured data. Helps Google understand
-// the brand and the product, and is eligible for rich results.
-const STRUCTURED_DATA = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": `${siteConfig.url}/#organization`,
-      name: siteConfig.name,
-      url: siteConfig.url,
-      logo: `${siteConfig.url}/SARION-ICON.png`,
-      email: siteConfig.contactEmail,
-    },
-    {
-      "@type": "SoftwareApplication",
-      name: siteConfig.name,
-      applicationCategory: "BusinessApplication",
-      operatingSystem: "Web",
-      url: siteConfig.url,
-      description: siteConfig.description,
-      publisher: { "@id": `${siteConfig.url}/#organization` },
-      offers: {
-        "@type": "Offer",
-        category: "subscription",
-        priceCurrency: "USD",
-      },
-    },
+  keywords: [
+    "agency management software",
+    "client management software for agencies",
+    "client portal software",
+    "agency CRM",
+    "project and invoicing software for agencies",
+    "freelancer client management",
   ],
 };
+
+// Product structured data (SoftwareApplication with real pricing) + FAQ schema.
+// Organization + WebSite are emitted sitewide by the marketing layout.
+const SOFTWARE_SCHEMA = {
+  "@context": "https://schema.org",
+  "@graph": [softwareApplicationSchema()],
+};
+const FAQ_SCHEMA = faqSchema(HOME_FAQ);
 
 export default function HomePage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
-      />
+      <JsonLd id="software-schema" data={SOFTWARE_SCHEMA} />
+      <JsonLd id="home-faq-schema" data={FAQ_SCHEMA} />
       <HeroSection />
 
       {/* Honest credibility — a note from the team, not fake testimonials */}
@@ -129,11 +116,7 @@ export default function HomePage() {
             eyebrow="Pricing"
             title="Simple plans that grow with you"
           />
-          <div className={styles.grid3}>
-            {PLANS.map((plan) => (
-              <PricingCard key={plan.name} {...plan} />
-            ))}
-          </div>
+          <PricingPlans foundingOpen={isFoundingOfferOpen()} />
           <div className={styles.center}>
             <Link href="/pricing" className="mBtn mBtnSecondary mBtnLg">
               View Pricing
@@ -142,8 +125,32 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* E2. Comparison — commercial-comparison intent */}
+      <section className="mSection mSectionAlt">
+        <div className="mContainer">
+          <SectionHeader
+            eyebrow="Why Sarion"
+            title="One workspace beats a patchwork of tools"
+            description="Spreadsheets and a generic CRM can limp along — but neither was built to run agency delivery end to end. Here's how Sarion compares."
+          />
+          <Comparison />
+        </div>
+      </section>
+
       {/* F. About + Team */}
       <AboutSection />
+
+      {/* F2. FAQ — informational intent + FAQ rich results + internal links */}
+      <section className="mSection">
+        <div className="mContainer">
+          <SectionHeader
+            eyebrow="FAQ"
+            title="Questions agencies ask before switching"
+            description="Everything you need to know about running your agency on Sarion."
+          />
+          <HomeFaq />
+        </div>
+      </section>
 
       {/* G. Final CTA */}
       <CTASection

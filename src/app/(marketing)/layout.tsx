@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import { Navbar } from "@/components/marketing/navbar";
 import { Footer } from "@/components/marketing/footer";
+import { JsonLd } from "@/components/seo/json-ld";
+import { siteGraph } from "@/lib/seo/schema";
 import "./marketing.css";
 
 export const metadata: Metadata = {
@@ -20,6 +22,8 @@ export default function MarketingLayout({
 }) {
   return (
     <div className="marketingTheme">
+      {/* Sitewide Organization + WebSite structured data (every marketing page). */}
+      <JsonLd id="site-graph" data={siteGraph()} />
       <Navbar />
       <main>{children}</main>
       <Footer />

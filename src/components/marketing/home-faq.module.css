@@ -1,0 +1,45 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--m-space-5);
+  margin-top: var(--m-space-7);
+}
+
+.item {
+  padding: var(--m-space-5);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background: var(--m-card);
+}
+
+.question {
+  font-size: var(--m-text-base);
+  font-weight: 600;
+  color: var(--m-fg);
+}
+
+.answer {
+  margin-top: var(--m-space-2);
+  font-size: var(--m-text-sm);
+  line-height: 1.65;
+  color: var(--m-fg-muted);
+}
+
+.link {
+  display: inline-block;
+  margin-top: var(--m-space-2);
+  font-size: var(--m-text-sm);
+  font-weight: 600;
+  color: var(--m-primary);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

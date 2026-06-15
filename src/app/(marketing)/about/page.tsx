@@ -4,6 +4,8 @@ import Link from "next/link";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { TeamCard } from "@/components/marketing/team-card";
 import { CTASection } from "@/components/marketing/cta-section";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbSchema } from "@/lib/seo/schema";
 import { TEAM } from "@/lib/marketing/team";
 import styles from "./about.module.css";
 
@@ -19,6 +21,11 @@ export const metadata: Metadata = {
     url: "/about",
   },
 };
+
+const BREADCRUMB_SCHEMA = breadcrumbSchema([
+  { name: "Home", path: "/" },
+  { name: "About", path: "/about" },
+]);
 
 const CHALLENGES = [
   {
@@ -42,6 +49,7 @@ const CHALLENGES = [
 export default function AboutPage() {
   return (
     <>
+      <JsonLd id="about-breadcrumb-schema" data={BREADCRUMB_SCHEMA} />
       {/* Hero */}
       <section className="mSection">
         <div className="mContainer">

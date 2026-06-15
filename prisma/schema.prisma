@@ -29,14 +29,43 @@ enum InvoiceStatus {
   overdue
 }
 
+enum PlanTier {
+  free
+  starter
+  growth
+  agency
+}
+
+enum BillingInterval {
+  monthly
+  yearly
+}
+
+// Idempotency ledger for Stripe webhooks. Each event is processed at most once;
+// a duplicate delivery is short-circuited on the unique eventId.
+model StripeWebhookEvent {
+  id        String   @id @default(cuid())
+  eventId   String   @unique
+  type      String
+  createdAt DateTime @default(now())
+}
+
 model Agency {
   id                 String   @id @default(cuid())
   name               String
   logoUrl            String?
-  plan                 String   @default("starter")
+  // --- Billing / plan (see src/config/plans.ts for the source of truth) ---
+  planTier             PlanTier        @default(free)
+  billingInterval      BillingInterval @default(monthly)
+  // Locked-in launch pricing. Once true, billing always resolves the founding
+  // Stripe price IDs and never reverts — even across upgrades/downgrades.
+  foundingMember       Boolean         @default(false)
+  // 14-day no-card trial. Null once the agency has converted to a paid plan.
+  trialEndsAt          DateTime?
   stripeCustomerId     String?
   stripeSubscriptionId String?
-  subscriptionStatus   String   @default("trialing")
+  // Stripe subscription lifecycle: trialing | active | past_due | canceled | unpaid | incomplete
+  subscriptionStatus   String          @default("trialing")
   // Next invoice sequence number to assign (per-agency). Atomically incremented
   // during invoice creation — see src/server/services/invoice-number.ts.
   invoiceSequence    Int      @default(1)

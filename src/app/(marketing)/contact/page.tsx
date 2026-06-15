@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import { SectionHeader } from "@/components/marketing/section-header";
 import { ContactForm } from "@/components/marketing/contact-form";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbSchema } from "@/lib/seo/schema";
 import { siteConfig } from "@/config/site";
 import styles from "./contact.module.css";
 
@@ -18,8 +20,15 @@ export const metadata: Metadata = {
   },
 };
 
+const BREADCRUMB_SCHEMA = breadcrumbSchema([
+  { name: "Home", path: "/" },
+  { name: "Contact", path: "/contact" },
+]);
+
 export default function ContactPage() {
   return (
+    <>
+      <JsonLd id="contact-breadcrumb-schema" data={BREADCRUMB_SCHEMA} />
     <section className="mSectionTight">
       <div className="mContainer">
         <SectionHeader
@@ -60,5 +69,6 @@ export default function ContactPage() {
         </div>
       </div>
     </section>
+    </>
   );
 }

@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireAgency } from "@/server/auth-context";
 import { logActivity } from "@/server/activity";
+import { checkLimit } from "@/server/services/plan-limits";
 
 // --- Validation ----------------------------------------------------------
 
@@ -45,7 +46,12 @@ export interface ProjectInput {
 
 export type ActionResult =
   | { ok: true; projectId: string }
-  | { ok: false; error: string; fieldErrors?: Record<string, string[]> };
+  | {
+      ok: false;
+      error: string;
+      fieldErrors?: Record<string, string[]>;
+      code?: "limit";
+    };
 
 const STATUS_LABEL: Record<(typeof STATUS_VALUES)[number], string> = {
   PLANNED: "Planned",
@@ -67,6 +73,12 @@ async function assertClientOwned(agencyId: string, clientId: string) {
 
 export async function createProject(input: ProjectInput): Promise<ActionResult> {
   const { agencyId } = await requireAgency();
+
+  // Plan gate — enforce the tier's project quota before creating.
+  const limit = await checkLimit(agencyId, "projects");
+  if (!limit.ok) {
+    return { ok: false, error: limit.message!, code: "limit" };
+  }
 
   const parsed = projectSchema.safeParse(input);
   if (!parsed.success) {

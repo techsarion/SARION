@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { requireAgency } from "@/server/auth-context";
 import { logActivity } from "@/server/activity";
 import { generateInvoiceNumber } from "@/server/services/invoice-number";
+import { checkLimit } from "@/server/services/plan-limits";
 
 // --- Validation ----------------------------------------------------------
 
@@ -58,7 +59,12 @@ export interface InvoiceInput {
 
 export type ActionResult =
   | { ok: true; invoiceId: string }
-  | { ok: false; error: string; fieldErrors?: Record<string, string[]> };
+  | {
+      ok: false;
+      error: string;
+      fieldErrors?: Record<string, string[]>;
+      code?: "limit";
+    };
 
 /** Round to 2 decimal places, returned as a number safe for Decimal columns. */
 function money(n: number): number {
@@ -89,6 +95,12 @@ function computeItems(items: z.infer<typeof itemSchema>[]) {
 
 export async function createInvoice(input: InvoiceInput): Promise<ActionResult> {
   const { agencyId } = await requireAgency();
+
+  // Plan gate — enforce the tier's invoice quota before creating.
+  const limit = await checkLimit(agencyId, "invoices");
+  if (!limit.ok) {
+    return { ok: false, error: limit.message!, code: "limit" };
+  }
 
   const parsed = invoiceSchema.safeParse(input);
   if (!parsed.success) {
