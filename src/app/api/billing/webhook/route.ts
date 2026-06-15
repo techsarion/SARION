@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 import { getStripe } from "@/lib/stripe";
 import { resolveSubscriptionPlan } from "@/lib/billing";
 import { getPlan, type PlanTier, type BillingInterval } from "@/config/plans";
-import { sendEmail, type EmailKind, type EmailPayloads } from "@/lib/email";
+import { sendEmailSafe, type EmailKind, type EmailPayloads } from "@/lib/email";
 
 // Stripe sends the raw body for signature verification — disable body parsing.
 export const runtime = "nodejs";
@@ -21,18 +21,30 @@ async function ownerEmail(agencyId: string): Promise<string | null> {
   return owner?.email ?? null;
 }
 
+/** Resolve an agency from a Stripe customer id (invoice.* events). */
+async function agencyByCustomer(
+  customer: string | Stripe.Customer | Stripe.DeletedCustomer | null,
+): Promise<{ id: string; planTier: PlanTier } | null> {
+  const customerId = typeof customer === "string" ? customer : customer?.id;
+  if (!customerId) return null;
+  return db.agency.findFirst({
+    where: { stripeCustomerId: customerId },
+    select: { id: true, planTier: true },
+  });
+}
+
+function formatCents(cents: number | null | undefined): string {
+  return `$${((cents ?? 0) / 100).toFixed(2)}`;
+}
+
 /** Best-effort billing notification — never throws into the webhook flow. */
 async function notify<K extends EmailKind>(
   agencyId: string,
   kind: K,
   data: EmailPayloads[K],
 ): Promise<void> {
-  try {
-    const to = await ownerEmail(agencyId);
-    if (to) await sendEmail(kind, to, data);
-  } catch (err) {
-    console.error(`[webhook] ${String(kind)} email failed:`, err);
-  }
+  const to = await ownerEmail(agencyId);
+  if (to) await sendEmailSafe(kind, to, data);
 }
 
 function priceLabel(tier: PlanTier, interval: BillingInterval): { amount: string; interval: string } {
@@ -150,6 +162,42 @@ export async function POST(req: NextRequest) {
         await notify(agencyId, "subscriptionCancelled", {
           planName: getPlan(endedTier).name,
           accessUntil: "the end of your current billing period",
+        });
+        break;
+      }
+
+      case "invoice.paid": {
+        // Renewals only — the first invoice is covered by the activation flow
+        // above, so we avoid a duplicate email on subscription create.
+        const invoice = event.data.object as Stripe.Invoice;
+        if (invoice.billing_reason !== "subscription_cycle") break;
+
+        const agency = await agencyByCustomer(invoice.customer);
+        if (!agency) break;
+
+        await notify(agency.id, "subscriptionRenewed", {
+          planName: getPlan(agency.planTier).name,
+          amount: formatCents(invoice.amount_paid),
+          nextBillingDate: invoice.period_end
+            ? new Date(invoice.period_end * 1000).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })
+            : "your next billing date",
+        });
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const agency = await agencyByCustomer(invoice.customer);
+        if (!agency) break;
+
+        await notify(agency.id, "paymentFailed", {
+          planName: getPlan(agency.planTier).name,
+          amount: formatCents(invoice.amount_due),
+          retryUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://trysarion.com"}/settings/billing`,
         });
         break;
       }

@@ -84,6 +84,131 @@
   flex-shrink: 0;
 }
 
+/* --- Account dropdown (desktop, logged in) --- */
+.account {
+  position: relative;
+}
+
+.accountTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px 4px 4px;
+  border: 1px solid var(--m-border);
+  border-radius: 999px;
+  background: var(--m-card);
+  color: var(--m-fg-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.accountTrigger:hover {
+  background: var(--m-card-hover);
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, hsl(var(--brand)) 0%, hsl(var(--brand-accent)) 100%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.accountBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.accountMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 50;
+  width: 240px;
+  padding: 6px;
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background: var(--m-card);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.25);
+}
+
+.accountHeader {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--m-border);
+  margin-bottom: 4px;
+}
+.accountName {
+  margin: 0;
+  font-size: var(--m-text-sm);
+  font-weight: 600;
+  color: var(--m-fg);
+}
+.accountEmail {
+  margin: 2px 0 0;
+  font-size: var(--m-text-xs);
+  color: var(--m-fg-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--m-radius);
+  font-size: var(--m-text-sm);
+  font-weight: 500;
+  color: var(--m-fg);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.accountItem:hover {
+  background: var(--m-card-hover);
+}
+.accountLogout {
+  color: #dc2626;
+  margin-top: 2px;
+  border-top: 1px solid var(--m-border);
+  border-radius: 0 0 var(--m-radius) var(--m-radius);
+}
+
+/* --- Mobile identity (logged in) --- */
+.mobileIdentity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0 8px;
+}
+.mobileIdentityText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.mobileName {
+  font-size: var(--m-text-sm);
+  font-weight: 600;
+  color: var(--m-fg);
+}
+.mobileEmail {
+  font-size: var(--m-text-xs);
+  color: var(--m-fg-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .menuButton {
   display: none;
   align-items: center;

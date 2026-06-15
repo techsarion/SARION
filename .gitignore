@@ -24,3 +24,6 @@ coverage/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Email preview output (scripts/email-preview.ts)
+# .email-previews/

@@ -152,6 +152,40 @@ export async function createInvoice(input: InvoiceInput): Promise<ActionResult> 
     return created;
   });
 
+  // Best-effort invoice delivery — email the client a link to their portal if
+  // we have an address. Never blocks invoice creation.
+  try {
+    const [client, agency] = await Promise.all([
+      db.client.findUnique({
+        where: { id: invoice.clientId },
+        select: { email: true, name: true, portalToken: true },
+      }),
+      db.agency.findUnique({
+        where: { id: agencyId },
+        select: { name: true },
+      }),
+    ]);
+    if (client?.email) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://trysarion.com";
+      const { sendEmailSafe } = await import("@/lib/email");
+      await sendEmailSafe("invoiceAvailable", client.email, {
+        invoiceNumber: invoice.number,
+        amount: formatMoney(total),
+        dueDate: invoice.dueDate
+          ? invoice.dueDate.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })
+          : undefined,
+        invoiceUrl: `${appUrl}/portal/${client.portalToken}`,
+        fromAgency: agency?.name,
+      });
+    }
+  } catch (err) {
+    console.error("[invoices] invoice delivery email failed:", err);
+  }
+
   revalidatePath("/invoices");
   revalidatePath(`/clients/${invoice.clientId}`);
   return { ok: true, invoiceId: invoice.id };

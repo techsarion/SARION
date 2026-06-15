@@ -82,26 +82,50 @@ await sendContactEmail({ name, email, agency, message });
 
 ## 5. Wired triggers (live now)
 
-- **Welcome** → Better Auth `after` signup hook for new owners ([src/lib/auth.ts](../src/lib/auth.ts)).
-- **Password reset** → Better Auth `sendResetPassword`.
-- **Team invite** → [src/server/actions/team.ts](../src/server/actions/team.ts).
-- **Contact confirmation + internal** → [src/app/api/contact/route.ts](../src/app/api/contact/route.ts).
-- **Subscription activated / cancelled** → Stripe webhook ([src/app/api/billing/webhook/route.ts](../src/app/api/billing/webhook/route.ts)).
+| Template | Trigger | Source | Failure mode |
+|----------|---------|--------|--------------|
+| `welcome` | New owner signup | `auth.ts` after-hook | safe (never blocks signup) |
+| `verifyEmail` | Signup (`sendOnSignUp`) | `auth.ts` emailVerification | safe; non-required (login not gated) |
+| `passwordReset` | Reset request | `auth.ts` sendResetPassword | **throws** (user told if it fails) |
+| `passwordChanged` | After reset | `auth.ts` onPasswordReset | safe |
+| `teamInvite` | Invite a member | `server/actions/team.ts` | safe |
+| `contactInternal` | Contact form | `api/contact/route.ts` | **throws** (critical inbox notify) |
+| `contactConfirmation` | Contact form | `api/contact/route.ts` | safe (acknowledgement) |
+| `subscriptionActivated` | `checkout.session.completed` | billing webhook | safe |
+| `subscriptionRenewed` | `invoice.paid` (cycle) | billing webhook | safe |
+| `subscriptionCancelled` | `customer.subscription.deleted` | billing webhook | safe |
+| `paymentFailed` | `invoice.payment_failed` | billing webhook | safe |
+| `invoiceAvailable` | Agency creates client invoice | `server/actions/invoices.ts` | safe (only if client has email) |
 
-## 6. Ready-to-wire (templates built; attach to the matching trigger)
+## 6. Test surface
 
-These have type-safe templates ready; call `sendEmail(...)` from the indicated source:
+- **Preview script:** `npx tsx scripts/email-preview.ts` → renders all 22 templates to `.email-previews/*.html` + a gallery `index.html` (open on desktop / phone / dark mode).
+- **Guarded route:** `GET /api/dev/email-test`
+  - no params → JSON list of every kind + its sender
+  - `?kind=welcome` → live HTML preview in the browser
+  - `?kind=welcome&to=you@x.com` → actually sends via Resend
+  - In production it 404s unless `EMAIL_TEST_TOKEN` is set and passed as `?token=`.
 
-| Template | Recommended trigger |
-|----------|---------------------|
-| `verifyEmail` | Better Auth `sendVerificationEmail` (enable `emailVerification`) |
-| `magicLink` | Better Auth magic-link plugin `sendMagicLink` |
-| `emailChanged` / `passwordChanged` | Better Auth change-email / change-password hooks |
-| `paymentSuccessful` / `subscriptionRenewed` | Stripe `invoice.paid` webhook event |
-| `paymentFailed` | Stripe `invoice.payment_failed` webhook event |
-| `invoiceAvailable` | When an agency sends a client invoice (invoice action) |
-| `demoBookingConfirmation` / `quoteRequestReceived` / `proposalSent` / `leadFollowUp` | Sales/CRM flows |
-| `newFeature` / `productAnnouncement` / `newsletter` | Marketing broadcast tooling |
+## 7. Remaining manual/feature-gated triggers
+
+These templates are built, type-safe, sample-tested, and callable via the test
+route, but have **no automatic trigger** because the product surface doesn't
+exist yet. Wire with a one-line `sendEmail(...)` when the flow ships:
+
+| Template | Needs |
+|----------|-------|
+| `magicLink` | Passwordless login (Better Auth magic-link plugin + UI) |
+| `emailChanged` | Change-email flow in account settings |
+| `paymentSuccessful` | Decide vs. Stripe's own receipts (avoid duplicate) — wire on `invoice.paid` create if desired |
+| `demoBookingConfirmation`, `quoteRequestReceived`, `proposalSent`, `leadFollowUp` | A sales/CRM pipeline |
+| `newFeature`, `productAnnouncement`, `newsletter` | A marketing broadcast tool / audience list |
+
+## 8. Production hardening (in `src/lib/email/index.ts`)
+
+- `sendEmail` (throws after retries) vs `sendEmailSafe` (never throws) — best-effort paths use the safe variant so **email never breaks a user action**.
+- **Retry** with exponential backoff (3 attempts: 0 / 300ms / 900ms).
+- **Structured JSON logs** (`[email] {event,...}`) for `provider.init`, `send.ok`, `send.retry`, `send.failed`.
+- **Monitoring hook:** `onEmailFailure(cb)` — wire to Sentry/Datadog at startup.
 
 ## 7. Deliverability — manual setup
 

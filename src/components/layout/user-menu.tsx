@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, ChevronDown } from "lucide-react";
+import { LogOut, ChevronDown, Globe } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -65,9 +66,18 @@ export function UserMenu({ name, email, initials }: UserMenuProps) {
               <p className="text-sm font-medium">{name}</p>
               <p className="truncate text-xs text-muted-foreground">{email}</p>
             </div>
+            <Link
+              href="/"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="mt-1 flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent"
+            >
+              <Globe className="h-4 w-4" />
+              Visit website
+            </Link>
             <Button
               variant="ghost"
-              className="mt-1 w-full justify-start text-destructive hover:text-destructive"
+              className="w-full justify-start text-destructive hover:text-destructive"
               onClick={handleLogout}
               disabled={isPending}
             >

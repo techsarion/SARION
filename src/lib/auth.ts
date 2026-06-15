@@ -26,13 +26,30 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: true,
     minPasswordLength: 8,
-    // Password reset (F: account recovery). The reset link is generated here;
-    // delivery is logged for local dev.
-    // TODO(email): wire a real provider (e.g. Resend) to email `url` to the
-    // user instead of logging — same pattern as the contact form lead capture.
+    // Password reset (F: account recovery) — delivered via Resend. Critical
+    // path: if delivery fails, the reset request surfaces the error.
     sendResetPassword: async ({ user, url }) => {
       const { sendPasswordResetEmail } = await import("@/lib/email");
       await sendPasswordResetEmail(user.email, url);
+    },
+    // Security confirmation after a password is successfully reset. Best-effort
+    // so a mail hiccup can never block the reset itself.
+    onPasswordReset: async ({ user }) => {
+      const { sendEmailSafe } = await import("@/lib/email");
+      await sendEmailSafe("passwordChanged", user.email, { name: user.name });
+    },
+  },
+  // Email verification — sent automatically on signup. NON-blocking: we do NOT
+  // set requireEmailVerification, so unverified users can still use the app
+  // (preserves the existing autoSignIn UX). Best-effort delivery.
+  emailVerification: {
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      const { sendEmailSafe } = await import("@/lib/email");
+      await sendEmailSafe("verifyEmail", user.email, {
+        verifyUrl: url,
+        name: user.name,
+      });
     },
   },
   session: {
@@ -107,12 +124,8 @@ export const auth = betterAuth({
 
           // New agency owners get a branded welcome email (best-effort).
           if (u.role === "owner") {
-            try {
-              const { sendEmail } = await import("@/lib/email");
-              await sendEmail("welcome", u.email, { name: u.name });
-            } catch (err) {
-              console.error("[auth] welcome email failed:", err);
-            }
+            const { sendEmailSafe } = await import("@/lib/email");
+            await sendEmailSafe("welcome", u.email, { name: u.name });
             return;
           }
 
