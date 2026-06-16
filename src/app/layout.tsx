@@ -56,6 +56,14 @@ export const metadata: Metadata = {
   },
   // Sensible default: index everything. Authenticated/auth/portal layouts
   // override this with noindex below.
+  // Ahrefs domain-ownership verification. Rendered server-side (Ahrefs does
+  // not execute JS), so this meta tag is present in the homepage HTML.
+  verification: {
+    other: {
+      "ahrefs-site-verification":
+        "f3343f196a47923715ddfe744e830c32155cd369dd4a1d86b8f14c7d883a9be9",
+    },
+  },
   robots: {
     index: true,
     follow: true,
