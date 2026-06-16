@@ -82,6 +82,7 @@ const schema = z.object({
   NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
   NEXT_PUBLIC_PLAUSIBLE_DOMAIN: z.string().optional(),
   NEXT_PUBLIC_GA_ID: z.string().optional(),
+  NEXT_PUBLIC_AHREFS_KEY: z.string().optional(),
 });
 
 function formatErrors(errors: z.ZodError): string {

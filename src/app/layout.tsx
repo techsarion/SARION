@@ -5,6 +5,7 @@ import { siteConfig } from "@/config/site";
 import { ThemeProvider } from "@/components/theme-provider";
 import { PlausibleScript } from "@/components/plausible-script";
 import { GoogleAnalytics } from "@/components/google-analytics";
+import { AhrefsAnalytics } from "@/components/ahrefs-analytics";
 import "./globals.css";
 
 // Body — Inter 400
@@ -78,6 +79,7 @@ export default function RootLayout({
       <head>
         <PlausibleScript />
         <GoogleAnalytics />
+        <AhrefsAnalytics />
       </head>
       <body
         className={`${inter.variable} ${geist.variable} ${fraunces.variable} font-sans`}
