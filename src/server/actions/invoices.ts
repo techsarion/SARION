@@ -8,6 +8,8 @@ import { requireAgency } from "@/server/auth-context";
 import { logActivity } from "@/server/activity";
 import { generateInvoiceNumber } from "@/server/services/invoice-number";
 import { checkLimit } from "@/server/services/plan-limits";
+import { captureServer } from "@/lib/posthog-server";
+import { ANALYTICS_EVENTS } from "@/lib/analytics-events";
 
 // --- Validation ----------------------------------------------------------
 
@@ -94,7 +96,7 @@ function computeItems(items: z.infer<typeof itemSchema>[]) {
 // --- Create --------------------------------------------------------------
 
 export async function createInvoice(input: InvoiceInput): Promise<ActionResult> {
-  const { agencyId } = await requireAgency();
+  const { agencyId, userId } = await requireAgency();
 
   // Plan gate — enforce the tier's invoice quota before creating.
   const limit = await checkLimit(agencyId, "invoices");
@@ -188,6 +190,14 @@ export async function createInvoice(input: InvoiceInput): Promise<ActionResult> 
 
   revalidatePath("/invoices");
   revalidatePath(`/clients/${invoice.clientId}`);
+
+  await captureServer({
+    distinctId: userId,
+    event: ANALYTICS_EVENTS.InvoiceCreated,
+    agencyId,
+    properties: { status: parsed.data.status, item_count: parsed.data.items.length },
+  });
+
   return { ok: true, invoiceId: invoice.id };
 }
 

@@ -15,6 +15,8 @@ import { HOME_FAQ } from "@/lib/marketing/faq";
 import { HomeFaq } from "@/components/marketing/home-faq";
 import { Comparison } from "@/components/marketing/comparison";
 import { JsonLd } from "@/components/seo/json-ld";
+import { TrackPageView } from "@/components/analytics/track-page-view";
+import { ANALYTICS_EVENTS } from "@/lib/analytics-events";
 import { softwareApplicationSchema, faqSchema } from "@/lib/seo/schema";
 import styles from "./home.module.css";
 
@@ -43,6 +45,7 @@ const FAQ_SCHEMA = faqSchema(HOME_FAQ);
 export default function HomePage() {
   return (
     <>
+      <TrackPageView event={ANALYTICS_EVENTS.LandingViewed} />
       <JsonLd id="software-schema" data={SOFTWARE_SCHEMA} />
       <JsonLd id="home-faq-schema" data={FAQ_SCHEMA} />
       <HeroSection />

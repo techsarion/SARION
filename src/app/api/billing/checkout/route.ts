@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireOwner } from "@/server/auth-context";
 import { createCheckoutSession } from "@/lib/billing";
+import { captureServer } from "@/lib/posthog-server";
+import { ANALYTICS_EVENTS } from "@/lib/analytics-events";
 
 const bodySchema = z.object({
   tier: z.enum(["starter", "growth", "agency"]),
@@ -27,5 +29,13 @@ export async function POST(req: NextRequest) {
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
+
+  await captureServer({
+    distinctId: ctx.userId,
+    event: ANALYTICS_EVENTS.CheckoutStarted,
+    agencyId: ctx.agencyId,
+    properties: { tier: parsed.data.tier, interval: parsed.data.interval },
+  });
+
   return NextResponse.json({ url: result.url });
 }

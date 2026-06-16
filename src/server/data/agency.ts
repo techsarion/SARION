@@ -20,8 +20,8 @@ export async function getAgencyBilling(agencyId: string) {
       foundingMember: true,
       trialEndsAt: true,
       subscriptionStatus: true,
-      stripeCustomerId: true,
-      stripeSubscriptionId: true,
+      lemonCustomerId: true,
+      lemonSubscriptionId: true,
     },
   });
 }

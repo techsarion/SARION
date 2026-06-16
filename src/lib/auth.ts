@@ -126,6 +126,18 @@ export const auth = betterAuth({
           if (u.role === "owner") {
             const { sendEmailSafe } = await import("@/lib/email");
             await sendEmailSafe("welcome", u.email, { name: u.name });
+
+            // Analytics: a brand-new agency/workspace was created.
+            if (u.agencyId) {
+              const uid = (user as { id?: string }).id;
+              const { captureServer } = await import("@/lib/posthog-server");
+              const { ANALYTICS_EVENTS } = await import("@/lib/analytics-events");
+              await captureServer({
+                distinctId: uid ?? u.agencyId,
+                event: ANALYTICS_EVENTS.WorkspaceCreated,
+                agencyId: u.agencyId,
+              });
+            }
             return;
           }
 

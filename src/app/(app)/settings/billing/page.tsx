@@ -5,7 +5,7 @@ import { requireOwner } from "@/server/auth-context";
 import { getAgencyBilling } from "@/server/data/agency";
 import { getPlanUsage } from "@/server/services/plan-limits";
 import { trialDaysLeft } from "@/config/plans";
-import { isStripeConfigured } from "@/lib/stripe";
+import { isLemonConfigured } from "@/lib/lemonsqueezy";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 import { BillingPanel } from "@/components/settings/billing-panel";
 import { UsageSummary } from "@/components/settings/usage-summary";
@@ -29,11 +29,11 @@ export default async function BillingPage() {
             billingInterval: billing.billingInterval,
             foundingMember: billing.foundingMember,
             subscriptionStatus: billing.subscriptionStatus,
-            stripeCustomerId: billing.stripeCustomerId,
-            stripeSubscriptionId: billing.stripeSubscriptionId,
+            lemonCustomerId: billing.lemonCustomerId,
+            lemonSubscriptionId: billing.lemonSubscriptionId,
             trialDaysLeft: trialDaysLeft(billing, Date.now()),
           }}
-          stripeConfigured={isStripeConfigured()}
+          billingConfigured={isLemonConfigured()}
         />
       </div>
     </PageWrapper>

@@ -1,75 +1,23 @@
 import "server-only";
 
-import type Stripe from "stripe";
-
 import { db } from "@/lib/db";
-import { getStripe } from "@/lib/stripe";
+import { createCheckoutUrl, getSubscription } from "@/lib/lemonsqueezy";
 import {
-  BILLING_INTERVALS,
   PLANS,
-  PAID_TIERS,
-  resolvePriceId,
+  resolveVariantId,
+  variantIdToPlan,
   type BillingInterval,
   type PaidPlanTier,
   type PlanTier,
 } from "@/config/plans";
 
 /**
- * Server-side billing orchestration. Wraps Stripe so routes stay thin and all
- * pricing decisions (which price ID, founding vs standard, trial behaviour)
- * live in one auditable place.
+ * Server-side billing orchestration. Wraps Lemon Squeezy so routes stay thin
+ * and all pricing decisions (which variant, trial behaviour, portal links) live
+ * in one auditable place.
  */
 
 const appUrl = () => process.env.NEXT_PUBLIC_APP_URL ?? "https://trysarion.com";
-
-/** Reverse-map a Stripe price ID back to the (tier, interval) it represents. */
-export function priceIdToPlan(
-  priceId: string,
-): { tier: PaidPlanTier; interval: BillingInterval } | null {
-  for (const tier of PAID_TIERS) {
-    const p = PLANS[tier].pricing;
-    for (const interval of BILLING_INTERVALS) {
-      if (
-        p.priceIds[interval] === priceId ||
-        p.foundingPriceIds[interval] === priceId
-      ) {
-        return { tier, interval };
-      }
-    }
-  }
-  return null;
-}
-
-/** Map a Stripe recurring interval ("month" | "year") to our enum. */
-function stripeIntervalToOurs(
-  interval: Stripe.Price.Recurring.Interval | undefined,
-): BillingInterval {
-  return interval === "year" ? "yearly" : "monthly";
-}
-
-/** Find-or-create the Stripe customer for an agency. */
-async function ensureCustomer(
-  agencyId: string,
-  email: string,
-): Promise<string> {
-  const agency = await db.agency.findUnique({
-    where: { id: agencyId },
-    select: { stripeCustomerId: true, name: true },
-  });
-  if (!agency) throw new Error("Agency not found");
-  if (agency.stripeCustomerId) return agency.stripeCustomerId;
-
-  const customer = await getStripe().customers.create({
-    email,
-    name: agency.name,
-    metadata: { agencyId },
-  });
-  await db.agency.update({
-    where: { id: agencyId },
-    data: { stripeCustomerId: customer.id },
-  });
-  return customer.id;
-}
 
 export interface CheckoutParams {
   agencyId: string;
@@ -83,10 +31,9 @@ export type CheckoutResult =
   | { ok: false; error: string };
 
 /**
- * Create a Stripe Checkout session for a subscription. Honours founding pricing
- * (the agency's locked price IDs) and carries no-card trial state forward: an
- * agency still inside its trial window keeps the remaining trial days in Stripe
- * so we never double-charge.
+ * Create a Lemon Squeezy hosted checkout for a subscription. The agency id,
+ * tier, and interval are passed as `custom_data` so the webhook can resolve and
+ * update the agency without a prior customer round-trip.
  */
 export async function createCheckoutSession(
   params: CheckoutParams,
@@ -95,90 +42,105 @@ export async function createCheckoutSession(
 
   const agency = await db.agency.findUnique({
     where: { id: agencyId },
-    select: { foundingMember: true, subscriptionStatus: true, trialEndsAt: true },
+    select: { id: true },
   });
   if (!agency) return { ok: false, error: "Agency not found." };
 
-  const priceId = resolvePriceId(tier, interval, agency.foundingMember);
-  if (!priceId) {
+  const variantId = resolveVariantId(tier, interval);
+  if (!variantId) {
     return {
       ok: false,
       error: `Pricing for the ${PLANS[tier].name} (${interval}) plan is not configured.`,
     };
   }
 
-  const customerId = await ensureCustomer(agencyId, email);
-  const stripe = getStripe();
-
-  // Preserve any remaining no-card trial as Stripe trial days.
-  let trialEnd: number | undefined;
-  if (
-    agency.subscriptionStatus === "trialing" &&
-    agency.trialEndsAt &&
-    agency.trialEndsAt.getTime() > Date.now()
-  ) {
-    trialEnd = Math.floor(agency.trialEndsAt.getTime() / 1000);
+  try {
+    const url = await createCheckoutUrl({
+      variantId,
+      email,
+      customData: { agency_id: agencyId, tier, interval },
+      redirectUrl: `${appUrl()}/settings/billing?success=1`,
+    });
+    return { ok: true, url };
+  } catch (err) {
+    console.error("[billing] checkout failed:", err);
+    return { ok: false, error: "Could not start checkout." };
   }
-
-  const metadata = { agencyId, tier, interval };
-
-  const session = await stripe.checkout.sessions.create({
-    customer: customerId,
-    mode: "subscription",
-    line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${appUrl()}/settings/billing?success=1`,
-    cancel_url: `${appUrl()}/settings/billing?canceled=1`,
-    allow_promotion_codes: true,
-    metadata,
-    subscription_data: {
-      metadata,
-      ...(trialEnd ? { trial_end: trialEnd } : {}),
-    },
-  });
-
-  if (!session.url) return { ok: false, error: "Could not start checkout." };
-  return { ok: true, url: session.url };
 }
 
-/** Create a Stripe Billing Portal session (manage card, cancel, invoices). */
+/**
+ * Resolve the Lemon Squeezy customer-portal URL for an agency. Unlike Stripe,
+ * the portal link lives on the subscription resource, so we fetch the stored
+ * subscription and return its `urls.customer_portal`.
+ */
 export async function createPortalSession(
   agencyId: string,
 ): Promise<CheckoutResult> {
   const agency = await db.agency.findUnique({
     where: { id: agencyId },
-    select: { stripeCustomerId: true },
+    select: { lemonSubscriptionId: true },
   });
-  if (!agency?.stripeCustomerId) {
+  if (!agency?.lemonSubscriptionId) {
     return { ok: false, error: "No billing account yet. Choose a plan first." };
   }
 
-  const session = await getStripe().billingPortal.sessions.create({
-    customer: agency.stripeCustomerId,
-    return_url: `${appUrl()}/settings/billing`,
-  });
-  return { ok: true, url: session.url };
+  try {
+    const sub = await getSubscription(agency.lemonSubscriptionId);
+    const url = sub.attributes.urls.customer_portal;
+    if (!url) {
+      return { ok: false, error: "Billing portal is not available right now." };
+    }
+    return { ok: true, url };
+  } catch (err) {
+    console.error("[billing] portal failed:", err);
+    return { ok: false, error: "Could not open billing portal." };
+  }
 }
 
 /**
- * Derive (tier, interval) from a Stripe subscription. Prefers explicit metadata
- * (set at checkout) and falls back to reverse-mapping the price ID — so a plan
- * change made directly in the Stripe portal is still reflected correctly.
+ * Derive (tier, interval) from a Lemon Squeezy variant id by reverse-mapping
+ * against the configured variant IDs. Falls back to "free" when the variant is
+ * unknown (e.g. a product that was removed from config).
  */
-export function resolveSubscriptionPlan(sub: Stripe.Subscription): {
+export function resolveSubscriptionPlan(variantId: string | number): {
   tier: PlanTier;
   interval: BillingInterval;
 } {
-  const price = sub.items.data[0]?.price;
-  const fromPrice = price?.id ? priceIdToPlan(price.id) : null;
+  const fromVariant = variantIdToPlan(String(variantId));
+  return {
+    tier: fromVariant?.tier ?? "free",
+    interval: fromVariant?.interval ?? "monthly",
+  };
+}
 
-  const metaTier = sub.metadata?.tier;
-  const tier: PlanTier =
-    metaTier && (PAID_TIERS as readonly string[]).includes(metaTier)
-      ? (metaTier as PaidPlanTier)
-      : (fromPrice?.tier ?? "free");
-
-  const interval: BillingInterval =
-    fromPrice?.interval ?? stripeIntervalToOurs(price?.recurring?.interval);
-
-  return { tier, interval };
+/**
+ * Map a Lemon Squeezy subscription status to our internal `subscriptionStatus`
+ * (the value plan-enforcement reasons about). A "cancelled" subscription that
+ * still has time left on the period keeps access (treated as active) until the
+ * `subscription_expired` event lands.
+ */
+export function lemonStatusToOurs(
+  lemonStatus: string,
+  endsAt: string | null,
+): string {
+  switch (lemonStatus) {
+    case "on_trial":
+      return "trialing";
+    case "active":
+      return "active";
+    case "past_due":
+      return "past_due";
+    case "unpaid":
+    case "paused":
+      return "unpaid";
+    case "cancelled": {
+      // Cancelled but still inside the paid period → preserve access.
+      const stillActive = endsAt ? new Date(endsAt).getTime() > Date.now() : false;
+      return stillActive ? "active" : "canceled";
+    }
+    case "expired":
+      return "canceled";
+    default:
+      return lemonStatus;
+  }
 }

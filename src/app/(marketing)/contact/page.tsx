@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { ContactForm } from "@/components/marketing/contact-form";
 import { JsonLd } from "@/components/seo/json-ld";
+import { TrackPageView } from "@/components/analytics/track-page-view";
+import { ANALYTICS_EVENTS } from "@/lib/analytics-events";
 import { breadcrumbSchema } from "@/lib/seo/schema";
 import { siteConfig } from "@/config/site";
 import styles from "./contact.module.css";
@@ -29,6 +31,7 @@ export default function ContactPage() {
   return (
     <>
       <JsonLd id="contact-breadcrumb-schema" data={BREADCRUMB_SCHEMA} />
+      <TrackPageView event={ANALYTICS_EVENTS.ContactViewed} />
     <section className="mSectionTight">
       <div className="mContainer">
         <SectionHeader

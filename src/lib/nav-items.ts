@@ -6,6 +6,7 @@ import {
   FileText,
   UsersRound,
   Settings,
+  MessageSquare,
 } from "lucide-react";
 
 export interface NavItem {
@@ -21,6 +22,12 @@ export const APP_NAV_ITEMS: NavItem[] = [
   { label: "Projects", href: "/projects", icon: FolderKanban },
   { label: "Invoices", href: "/invoices", icon: FileText },
   { label: "Team", href: "/team", icon: UsersRound, ownerOnly: true },
+  {
+    label: "Feedback",
+    href: "/settings/feedback",
+    icon: MessageSquare,
+    ownerOnly: true,
+  },
   { label: "Settings", href: "/settings", icon: Settings, ownerOnly: true },
 ];
 

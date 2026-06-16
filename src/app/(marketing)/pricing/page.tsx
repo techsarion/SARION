@@ -5,6 +5,8 @@ import { Check, ShieldCheck, Sparkles, Heart } from "lucide-react";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { PricingPlans } from "@/components/marketing/pricing-plans";
 import { JsonLd } from "@/components/seo/json-ld";
+import { TrackPageView } from "@/components/analytics/track-page-view";
+import { ANALYTICS_EVENTS } from "@/lib/analytics-events";
 import { faqSchema, breadcrumbSchema } from "@/lib/seo/schema";
 import { TRIAL_POINTS, PRICING_FAQ } from "@/lib/marketing/pricing";
 import { isFoundingOfferOpen } from "@/config/plans";
@@ -59,6 +61,7 @@ export default function PricingPage() {
 
   return (
     <>
+      <TrackPageView event={ANALYTICS_EVENTS.PricingViewed} />
       <JsonLd id="pricing-faq-schema" data={FAQ_SCHEMA} />
       <JsonLd id="pricing-breadcrumb-schema" data={BREADCRUMB_SCHEMA} />
       <section className="mSectionTight">

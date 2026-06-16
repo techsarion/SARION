@@ -1,19 +1,18 @@
 /**
  * Sarion — centralized plan configuration (single source of truth).
  *
- * EVERYTHING that touches pricing, limits, feature gating, Stripe, the billing
- * UI, and the marketing site derives from this file. Do NOT hardcode prices,
- * quotas, or Stripe price IDs anywhere else — read them from here.
+ * EVERYTHING that touches pricing, limits, feature gating, Lemon Squeezy, the
+ * billing UI, and the marketing site derives from this file. Do NOT hardcode
+ * prices, quotas, or Lemon Squeezy variant IDs anywhere else — read them here.
  *
  * Three concerns live together so they can never drift apart:
- *   1. Commercial   — amounts, billing intervals, Stripe price IDs
+ *   1. Commercial   — amounts, billing intervals, Lemon Squeezy variant IDs
  *   2. Enforcement  — per-tier resource limits (maxClients, maxProjects, …)
  *   3. Presentation — marketing copy, feature bullets, badges
  *
- * Founding pricing: launch users get a locked-in discounted price forever. We
- * model this with a *separate* set of Stripe price IDs per tier/interval. An
- * agency flagged `foundingMember` always checks out against, and is migrated
- * to, the founding price — see src/lib/billing.ts.
+ * Founding members: launch users keep the `foundingMember` flag (and its
+ * lifetime perks/badge). Lemon Squeezy has no per-customer locked price, so
+ * checkout always resolves the standard variant for the tier/interval.
  */
 
 // ---------------------------------------------------------------------------
@@ -26,7 +25,7 @@ export type PlanTier = (typeof PLAN_TIERS)[number];
 export const BILLING_INTERVALS = ["monthly", "yearly"] as const;
 export type BillingInterval = (typeof BILLING_INTERVALS)[number];
 
-/** Tiers that are actually purchasable through Stripe (free is not). */
+/** Tiers that are actually purchasable through Lemon Squeezy (free is not). */
 export const PAID_TIERS = ["starter", "growth", "agency"] as const;
 export type PaidPlanTier = (typeof PAID_TIERS)[number];
 
@@ -60,8 +59,8 @@ export interface PlanLimits {
 }
 
 // ---------------------------------------------------------------------------
-// Pricing — amounts are in whole dollars; Stripe price IDs come from env so the
-// same code runs against test + live Stripe accounts without edits.
+// Pricing — amounts are in whole dollars; Lemon Squeezy variant IDs come from
+// env so the same code runs against test + live stores without edits.
 // ---------------------------------------------------------------------------
 
 export interface PlanPricing {
@@ -69,13 +68,8 @@ export interface PlanPricing {
   monthly: number;
   /** Display dollar amount for the WHOLE year (yearly billing). */
   yearly: number;
-  /** Standard Stripe price IDs (env-resolved). */
-  priceIds: {
-    monthly: string | undefined;
-    yearly: string | undefined;
-  };
-  /** Founding (locked-forever) Stripe price IDs (env-resolved). */
-  foundingPriceIds: {
+  /** Lemon Squeezy variant IDs (env-resolved) — the purchasable product. */
+  variantIds: {
     monthly: string | undefined;
     yearly: string | undefined;
   };
@@ -110,8 +104,7 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
     pricing: {
       monthly: 0,
       yearly: 0,
-      priceIds: { monthly: undefined, yearly: undefined },
-      foundingPriceIds: { monthly: undefined, yearly: undefined },
+      variantIds: { monthly: undefined, yearly: undefined },
     },
     limits: {
       maxClients: 1,
@@ -138,13 +131,9 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
     pricing: {
       monthly: 19,
       yearly: 190,
-      priceIds: {
-        monthly: env("STRIPE_PRICE_STARTER_MONTHLY"),
-        yearly: env("STRIPE_PRICE_STARTER_YEARLY"),
-      },
-      foundingPriceIds: {
-        monthly: env("STRIPE_PRICE_STARTER_MONTHLY_FOUNDING"),
-        yearly: env("STRIPE_PRICE_STARTER_YEARLY_FOUNDING"),
+      variantIds: {
+        monthly: env("LEMON_STARTER_MONTHLY_VARIANT_ID"),
+        yearly: env("LEMON_STARTER_YEARLY_VARIANT_ID"),
       },
     },
     limits: {
@@ -174,13 +163,9 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
     pricing: {
       monthly: 49,
       yearly: 490,
-      priceIds: {
-        monthly: env("STRIPE_PRICE_GROWTH_MONTHLY"),
-        yearly: env("STRIPE_PRICE_GROWTH_YEARLY"),
-      },
-      foundingPriceIds: {
-        monthly: env("STRIPE_PRICE_GROWTH_MONTHLY_FOUNDING"),
-        yearly: env("STRIPE_PRICE_GROWTH_YEARLY_FOUNDING"),
+      variantIds: {
+        monthly: env("LEMON_GROWTH_MONTHLY_VARIANT_ID"),
+        yearly: env("LEMON_GROWTH_YEARLY_VARIANT_ID"),
       },
     },
     limits: {
@@ -209,13 +194,9 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
     pricing: {
       monthly: 99,
       yearly: 990,
-      priceIds: {
-        monthly: env("STRIPE_PRICE_AGENCY_MONTHLY"),
-        yearly: env("STRIPE_PRICE_AGENCY_YEARLY"),
-      },
-      foundingPriceIds: {
-        monthly: env("STRIPE_PRICE_AGENCY_MONTHLY_FOUNDING"),
-        yearly: env("STRIPE_PRICE_AGENCY_YEARLY_FOUNDING"),
+      variantIds: {
+        monthly: env("LEMON_AGENCY_MONTHLY_VARIANT_ID"),
+        yearly: env("LEMON_AGENCY_YEARLY_VARIANT_ID"),
       },
     },
     limits: {
@@ -262,20 +243,30 @@ export function yearlySavingMonths(tier: PlanTier): number {
 }
 
 /**
- * Resolve the correct Stripe price ID for a checkout/migration, honouring
- * founding status. Returns undefined if the tier/interval isn't configured.
+ * Resolve the Lemon Squeezy variant ID for a checkout. Returns undefined if the
+ * tier/interval isn't configured.
  */
-export function resolvePriceId(
+export function resolveVariantId(
   tier: PlanTier,
   interval: BillingInterval,
-  founding: boolean,
 ): string | undefined {
   if (!isPaidTier(tier)) return undefined;
-  const pricing = PLANS[tier].pricing;
-  if (founding) {
-    return pricing.foundingPriceIds[interval] ?? pricing.priceIds[interval];
+  return PLANS[tier].pricing.variantIds[interval];
+}
+
+/** Reverse-map a Lemon Squeezy variant ID back to the (tier, interval) it represents. */
+export function variantIdToPlan(
+  variantId: string,
+): { tier: PaidPlanTier; interval: BillingInterval } | null {
+  for (const tier of PAID_TIERS) {
+    const p = PLANS[tier].pricing;
+    for (const interval of BILLING_INTERVALS) {
+      if (p.variantIds[interval] === variantId) {
+        return { tier, interval };
+      }
+    }
   }
-  return pricing.priceIds[interval];
+  return null;
 }
 
 /** Trial length, in days, for new agencies. */

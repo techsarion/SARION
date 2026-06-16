@@ -100,6 +100,38 @@ export default function PrivacyPage() {
             </section>
 
             <section>
+              <h2>Third-party services</h2>
+              <p>
+                We rely on a small number of trusted providers to run Sarion,
+                and share only the data each needs to do its job:
+              </p>
+              <ul>
+                <li>
+                  <strong>Lemon Squeezy</strong> — our merchant of record for
+                  subscription billing. They process your payment details; we
+                  never see or store full card numbers.
+                </li>
+                <li>
+                  <strong>Resend</strong> — delivers transactional email such as
+                  account, billing, and invite notifications.
+                </li>
+                <li>
+                  <strong>Hosting &amp; database</strong> — our infrastructure
+                  and managed PostgreSQL providers store your data securely on
+                  our behalf.
+                </li>
+                <li>
+                  <strong>Analytics</strong> — privacy-respecting, aggregated
+                  usage analytics, as described above.
+                </li>
+              </ul>
+              <p>
+                Each provider is bound by its own data-processing terms and uses
+                your data only to provide its service to us.
+              </p>
+            </section>
+
+            <section>
               <h2>Data retention &amp; deletion</h2>
               <p>
                 We keep your data while your account is active. You can request

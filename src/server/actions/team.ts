@@ -8,6 +8,8 @@ import { requireAgency } from "@/server/auth-context";
 import { logActivity } from "@/server/activity";
 import { sendInviteEmail } from "@/lib/email";
 import { checkLimit } from "@/server/services/plan-limits";
+import { captureServer } from "@/lib/posthog-server";
+import { ANALYTICS_EVENTS } from "@/lib/analytics-events";
 
 const inviteSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(120),
@@ -39,7 +41,7 @@ const INVITE_TTL_DAYS = 14;
 export async function inviteTeamMember(
   input: InviteInput,
 ): Promise<InviteResult> {
-  const { agencyId, role } = await requireAgency();
+  const { agencyId, role, userId } = await requireAgency();
 
   // Only owners may invite.
   if (role !== "owner") {
@@ -117,6 +119,12 @@ export async function inviteTeamMember(
   });
 
   revalidatePath("/team");
+
+  await captureServer({
+    distinctId: userId,
+    event: ANALYTICS_EVENTS.TeamMemberInvited,
+    agencyId,
+  });
 
   // Send invite email — non-fatal: a failure here should not block the UI.
   // The invite token is still valid and the owner can copy/share the link.

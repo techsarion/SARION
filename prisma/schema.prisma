@@ -41,9 +41,23 @@ enum BillingInterval {
   yearly
 }
 
-// Idempotency ledger for Stripe webhooks. Each event is processed at most once;
-// a duplicate delivery is short-circuited on the unique eventId.
-model StripeWebhookEvent {
+enum FeedbackType {
+  feature_request
+  bug_report
+  general
+}
+
+enum FeedbackStatus {
+  open
+  in_review
+  planned
+  completed
+  declined
+}
+
+// Idempotency ledger for Lemon Squeezy webhooks. Each event is processed at
+// most once; a duplicate delivery is short-circuited on the unique eventId.
+model LemonWebhookEvent {
   id        String   @id @default(cuid())
   eventId   String   @unique
   type      String
@@ -57,14 +71,16 @@ model Agency {
   // --- Billing / plan (see src/config/plans.ts for the source of truth) ---
   planTier             PlanTier        @default(free)
   billingInterval      BillingInterval @default(monthly)
-  // Locked-in launch pricing. Once true, billing always resolves the founding
-  // Stripe price IDs and never reverts — even across upgrades/downgrades.
+  // Launch-cohort flag. Retained for lifetime perks / badge; Lemon Squeezy has
+  // no per-customer locked price so it no longer affects which variant is sold.
   foundingMember       Boolean         @default(false)
   // 14-day no-card trial. Null once the agency has converted to a paid plan.
   trialEndsAt          DateTime?
-  stripeCustomerId     String?
-  stripeSubscriptionId String?
-  // Stripe subscription lifecycle: trialing | active | past_due | canceled | unpaid | incomplete
+  // --- Lemon Squeezy billing identifiers ---
+  lemonCustomerId      String?
+  lemonOrderId         String?
+  lemonSubscriptionId  String?
+  // Subscription lifecycle (normalized): trialing | active | past_due | canceled | unpaid | incomplete
   subscriptionStatus   String          @default("trialing")
   // Next invoice sequence number to assign (per-agency). Atomically incremented
   // during invoice creation — see src/server/services/invoice-number.ts.
@@ -84,6 +100,26 @@ model Agency {
   activities     Activity[]
   teamInvites    TeamInvite[]
   portalComments PortalComment[]
+  feedback       Feedback[]
+}
+
+// In-app feedback from authenticated users — feature requests, bug reports, and
+// general feedback. Reviewed by agency owners at /settings/feedback.
+model Feedback {
+  id          String         @id @default(cuid())
+  agencyId    String
+  userId      String
+  type        FeedbackType   @default(general)
+  title       String
+  description String
+  status      FeedbackStatus @default(open)
+  createdAt   DateTime       @default(now())
+
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([agencyId, createdAt])
+  @@index([status])
 }
 
 model User {
@@ -100,6 +136,7 @@ model User {
   agency   Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   sessions Session[]
   accounts Account[]
+  feedback Feedback[]
 
   @@index([agencyId])
 }

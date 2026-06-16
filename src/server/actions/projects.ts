@@ -7,6 +7,8 @@ import { db } from "@/lib/db";
 import { requireAgency } from "@/server/auth-context";
 import { logActivity } from "@/server/activity";
 import { checkLimit } from "@/server/services/plan-limits";
+import { captureServer } from "@/lib/posthog-server";
+import { ANALYTICS_EVENTS } from "@/lib/analytics-events";
 
 // --- Validation ----------------------------------------------------------
 
@@ -72,7 +74,7 @@ async function assertClientOwned(agencyId: string, clientId: string) {
 // --- Create --------------------------------------------------------------
 
 export async function createProject(input: ProjectInput): Promise<ActionResult> {
-  const { agencyId } = await requireAgency();
+  const { agencyId, userId } = await requireAgency();
 
   // Plan gate — enforce the tier's project quota before creating.
   const limit = await checkLimit(agencyId, "projects");
@@ -116,6 +118,14 @@ export async function createProject(input: ProjectInput): Promise<ActionResult> 
   });
 
   revalidatePath("/projects");
+
+  await captureServer({
+    distinctId: userId,
+    event: ANALYTICS_EVENTS.ProjectCreated,
+    agencyId,
+    properties: { status: parsed.data.status },
+  });
+
   return { ok: true, projectId: project.id };
 }
 

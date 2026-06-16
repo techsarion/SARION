@@ -7,6 +7,8 @@ import { isTrialing, isTrialExpired, trialDaysLeft } from "@/config/plans";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { TrialBanner } from "@/components/billing/trial-banner";
+import { FeedbackWidget } from "@/components/feedback/feedback-widget";
+import { IdentifyUser } from "@/components/analytics/identify-user";
 import { Toaster } from "@/components/ui/sonner";
 
 type BannerState =
@@ -37,6 +39,7 @@ export default async function AppLayout({
   // Determine whether to show the upgrade prompt + trial banner. Agencies on an
   // active subscription have fully converted — hide the upsell for them.
   let showUpgrade = true;
+  let planTier: string | undefined;
   let banner: BannerState = { kind: "none" };
   if (agencyId) {
     try {
@@ -51,6 +54,7 @@ export default async function AppLayout({
       });
       if (agency) {
         const now = Date.now();
+        planTier = agency.planTier;
         showUpgrade = agency.subscriptionStatus !== "active";
         if (isTrialing(agency, now)) {
           banner = {
@@ -89,6 +93,8 @@ export default async function AppLayout({
           {children}
         </main>
       </div>
+      <IdentifyUser userId={session.user.id} planTier={planTier} />
+      <FeedbackWidget />
       <Toaster />
     </div>
   );

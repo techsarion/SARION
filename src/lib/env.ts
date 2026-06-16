@@ -42,27 +42,19 @@ const schema = z.object({
     ),
   BETTER_AUTH_URL: z.string().url().optional(),
 
-  // ── Stripe (optional — absent = graceful degradation in billing UI) ───────
-  STRIPE_SECRET_KEY: z.string().optional(),
-  STRIPE_WEBHOOK_SECRET: z.string().optional(),
-  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
+  // ── Lemon Squeezy (optional — absent = graceful degradation in billing UI) ─
+  LEMONSQUEEZY_API_KEY: z.string().optional(),
+  LEMONSQUEEZY_STORE_ID: z.string().optional(),
+  LEMONSQUEEZY_WEBHOOK_SECRET: z.string().optional(),
 
-  // Standard prices — monthly + yearly, one per paid tier. All optional so the
-  // app degrades gracefully (billing UI shows a "not configured" banner).
-  STRIPE_PRICE_STARTER_MONTHLY: z.string().optional(),
-  STRIPE_PRICE_STARTER_YEARLY: z.string().optional(),
-  STRIPE_PRICE_GROWTH_MONTHLY: z.string().optional(),
-  STRIPE_PRICE_GROWTH_YEARLY: z.string().optional(),
-  STRIPE_PRICE_AGENCY_MONTHLY: z.string().optional(),
-  STRIPE_PRICE_AGENCY_YEARLY: z.string().optional(),
-
-  // Founding (locked-forever) prices — fall back to standard prices if unset.
-  STRIPE_PRICE_STARTER_MONTHLY_FOUNDING: z.string().optional(),
-  STRIPE_PRICE_STARTER_YEARLY_FOUNDING: z.string().optional(),
-  STRIPE_PRICE_GROWTH_MONTHLY_FOUNDING: z.string().optional(),
-  STRIPE_PRICE_GROWTH_YEARLY_FOUNDING: z.string().optional(),
-  STRIPE_PRICE_AGENCY_MONTHLY_FOUNDING: z.string().optional(),
-  STRIPE_PRICE_AGENCY_YEARLY_FOUNDING: z.string().optional(),
+  // Variant IDs — monthly + yearly, one per paid tier. All optional so the app
+  // degrades gracefully (billing UI shows a "not configured" banner).
+  LEMON_STARTER_MONTHLY_VARIANT_ID: z.string().optional(),
+  LEMON_STARTER_YEARLY_VARIANT_ID: z.string().optional(),
+  LEMON_GROWTH_MONTHLY_VARIANT_ID: z.string().optional(),
+  LEMON_GROWTH_YEARLY_VARIANT_ID: z.string().optional(),
+  LEMON_AGENCY_MONTHLY_VARIANT_ID: z.string().optional(),
+  LEMON_AGENCY_YEARLY_VARIANT_ID: z.string().optional(),
 
   // Founding offer toggle — "false" closes founding status to NEW signups
   // (existing founding members are unaffected). Public so the marketing site
@@ -83,6 +75,12 @@ const schema = z.object({
   NEXT_PUBLIC_PLAUSIBLE_DOMAIN: z.string().optional(),
   NEXT_PUBLIC_GA_ID: z.string().optional(),
   NEXT_PUBLIC_AHREFS_KEY: z.string().optional(),
+
+  // ── PostHog product analytics (optional — absent = analytics disabled) ─────
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().optional(),
+  // Optional server-side override; falls back to the public key if unset.
+  POSTHOG_KEY: z.string().optional(),
 });
 
 function formatErrors(errors: z.ZodError): string {

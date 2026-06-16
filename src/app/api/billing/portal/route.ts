@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { requireOwner } from "@/server/auth-context";
 import { createPortalSession } from "@/lib/billing";
 
-/** Opens the Stripe Billing Portal so owners can manage card / cancel / invoices. */
+/** Opens the Lemon Squeezy customer portal so owners can manage card / cancel / invoices. */
 export async function POST() {
   const ctx = await requireOwner();
   const result = await createPortalSession(ctx.agencyId);

@@ -7,6 +7,8 @@ import { db } from "@/lib/db";
 import { requireAgency } from "@/server/auth-context";
 import { logActivity } from "@/server/activity";
 import { checkLimit } from "@/server/services/plan-limits";
+import { captureServer } from "@/lib/posthog-server";
+import { ANALYTICS_EVENTS } from "@/lib/analytics-events";
 
 // --- Validation ----------------------------------------------------------
 
@@ -44,7 +46,7 @@ const notesSchema = z.object({
 // --- Create --------------------------------------------------------------
 
 export async function createClient(input: ClientInput): Promise<ActionResult> {
-  const { agencyId } = await requireAgency();
+  const { agencyId, userId } = await requireAgency();
 
   // Plan gate — enforce the tier's client quota before creating.
   const limit = await checkLimit(agencyId, "clients");
@@ -78,6 +80,13 @@ export async function createClient(input: ClientInput): Promise<ActionResult> {
   });
 
   revalidatePath("/clients");
+
+  await captureServer({
+    distinctId: userId,
+    event: ANALYTICS_EVENTS.ClientCreated,
+    agencyId,
+  });
+
   return { ok: true, clientId: client.id };
 }
 

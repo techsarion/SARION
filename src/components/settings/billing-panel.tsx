@@ -18,8 +18,8 @@ export interface BillingInfo {
   billingInterval: BillingInterval;
   foundingMember: boolean;
   subscriptionStatus: string;
-  stripeCustomerId: string | null;
-  stripeSubscriptionId: string | null;
+  lemonCustomerId: string | null;
+  lemonSubscriptionId: string | null;
   trialDaysLeft: number | null;
 }
 
@@ -34,10 +34,10 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function BillingPanel({
   billing,
-  stripeConfigured,
+  billingConfigured,
 }: {
   billing: BillingInfo;
-  stripeConfigured: boolean;
+  billingConfigured: boolean;
 }) {
   const [interval, setInterval] = useState<BillingInterval>(
     billing.billingInterval,
@@ -89,14 +89,14 @@ export function BillingPanel({
 
   return (
     <div className="space-y-6">
-      {!stripeConfigured && (
+      {!billingConfigured && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-5 py-4 dark:border-amber-900/50 dark:bg-amber-950/30">
           <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
-            Stripe is not configured
+            Lemon Squeezy is not configured
           </p>
           <p className="mt-1 text-sm text-amber-700 dark:text-amber-500">
-            Add your Stripe secret key, webhook secret, and the monthly/yearly
-            price IDs to enable subscription billing. See{" "}
+            Add your Lemon Squeezy API key, store ID, webhook secret, and the
+            monthly/yearly variant IDs to enable subscription billing. See{" "}
             <code className="rounded bg-amber-100 px-1 font-mono text-xs dark:bg-amber-900/50">
               docs/deployment.md
             </code>
@@ -131,7 +131,7 @@ export function BillingPanel({
             <span className="rounded-full border px-3 py-1 text-xs font-medium">
               {STATUS_LABELS[status] ?? status}
             </span>
-            {billing.stripeCustomerId && (
+            {billing.lemonSubscriptionId && (
               <button
                 onClick={handlePortal}
                 disabled={loading !== null}
@@ -203,7 +203,7 @@ export function BillingPanel({
               </ul>
               <button
                 onClick={() => handleUpgrade(tier)}
-                disabled={!stripeConfigured || isCurrent || loading !== null}
+                disabled={!billingConfigured || isCurrent || loading !== null}
                 className={`mt-auto w-full rounded-md py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                   plan.featured
                     ? "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -222,8 +222,8 @@ export function BillingPanel({
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        Cancel anytime. Plans are billed per agency through Stripe. Switching
-        plans is prorated automatically.
+        Cancel anytime. Plans are billed per agency through Lemon Squeezy.
+        Switching plans is prorated automatically.
       </p>
     </div>
   );

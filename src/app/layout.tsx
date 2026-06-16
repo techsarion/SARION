@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { PlausibleScript } from "@/components/plausible-script";
 import { GoogleAnalytics } from "@/components/google-analytics";
 import { AhrefsAnalytics } from "@/components/ahrefs-analytics";
+import { PostHogProvider } from "@/components/analytics/posthog-provider";
 import "./globals.css";
 
 // Body — Inter 400
@@ -56,14 +57,6 @@ export const metadata: Metadata = {
   },
   // Sensible default: index everything. Authenticated/auth/portal layouts
   // override this with noindex below.
-  // Ahrefs domain-ownership verification. Rendered server-side (Ahrefs does
-  // not execute JS), so this meta tag is present in the homepage HTML.
-  verification: {
-    other: {
-      "ahrefs-site-verification":
-        "f3343f196a47923715ddfe744e830c32155cd369dd4a1d86b8f14c7d883a9be9",
-    },
-  },
   robots: {
     index: true,
     follow: true,
@@ -98,6 +91,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <PostHogProvider />
           {children}
         </ThemeProvider>
       </body>
