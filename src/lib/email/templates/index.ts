@@ -10,6 +10,7 @@ import * as billing from "./billing";
 import * as sales from "./sales";
 import * as contact from "./contact";
 import * as product from "./product";
+import * as scorecard from "./scorecard";
 
 export interface EmailPayloads {
   // Auth
@@ -39,6 +40,17 @@ export interface EmailPayloads {
   newFeature: { featureName: string; description: string; ctaUrl?: string; unsubscribeUrl?: string };
   productAnnouncement: { title: string; body: string; ctaLabel?: string; ctaUrl?: string; unsubscribeUrl?: string };
   newsletter: { headline: string; intro: string; items: { title: string; body: string; url?: string }[]; unsubscribeUrl?: string };
+  // Lead magnet
+  scorecardReport: {
+    scoreLabel: string;
+    maturityLabel: string;
+    maturityHeadline: string;
+    revenueLeak: string;
+    timeLost: string;
+    reportUrl: string;
+    trialUrl: string;
+    topFixes: { feature: string; fix: string }[];
+  };
 }
 
 // Compile-time guarantee that EmailPayloads covers exactly the EmailKind union.
@@ -75,4 +87,6 @@ export const TEMPLATES: {
   newFeature: product.newFeature,
   productAnnouncement: product.productAnnouncement,
   newsletter: product.newsletter,
+
+  scorecardReport: scorecard.scorecardReport,
 };

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ProductShot } from "./product-shot";
+import { ScorecardLink } from "./scorecard-link";
 import styles from "./hero-section.module.css";
 
 export function HeroSection() {
@@ -25,6 +26,9 @@ export function HeroSection() {
             <Link href="/features" className="mBtn mBtnSecondary mBtnLg">
               See How It Works
             </Link>
+            <ScorecardLink placement="home_hero" className="mBtn mBtnGhost mBtnLg">
+              Score your agency →
+            </ScorecardLink>
           </div>
           <p className={styles.note}>
             14-day free trial · No credit card required

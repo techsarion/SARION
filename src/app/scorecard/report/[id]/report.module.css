@@ -1,0 +1,211 @@
+/* Standalone, print-optimized report. Self-contained styling (this route lives
+   OUTSIDE the marketing layout, so no --m-* tokens) with a light, paper-like
+   surface and @media print rules for clean browser "Save as PDF". */
+
+.page {
+  --ink: #0f172a;
+  --body: #475569;
+  --muted: #94a3b8;
+  --line: #e2e8f0;
+  --primary: #2563eb;
+  --success: #059669;
+  --danger: #dc2626;
+  color: var(--ink);
+  background: #f4f6f9;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  padding: 32px 16px 64px;
+}
+
+.sheet {
+  max-width: 800px;
+  margin-inline: auto;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 48px;
+  box-shadow: 0 10px 40px -20px rgba(15, 23, 42, 0.3);
+}
+
+.toolbar {
+  max-width: 800px;
+  margin: 0 auto 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.printBtn {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 9px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.printBtn:hover {
+  background: #f8fafc;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 16px;
+  margin-bottom: 28px;
+}
+.brandName {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+}
+.brandMeta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.cover {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 28px;
+  align-items: center;
+  margin-bottom: 28px;
+  color: var(--ink);
+}
+.coverTitle {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+.coverHeadline {
+  font-size: 15px;
+  color: var(--body);
+  line-height: 1.6;
+}
+
+.statRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 24px 0;
+}
+.statBox {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 16px;
+}
+.statLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  font-weight: 600;
+}
+.statValue {
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 32px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+  align-items: center;
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--body);
+}
+.row strong {
+  color: var(--ink);
+}
+
+.rec {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 12px;
+  break-inside: avoid;
+}
+.recHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.recFeature {
+  font-size: 15px;
+  font-weight: 700;
+}
+.recImpact {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--success);
+}
+.recText {
+  font-size: 13px;
+  color: var(--body);
+  line-height: 1.6;
+}
+
+.ctaBox {
+  margin-top: 32px;
+  text-align: center;
+  border: 2px solid var(--primary);
+  border-radius: 6px;
+  padding: 28px;
+  break-inside: avoid;
+}
+.ctaLink {
+  display: inline-block;
+  margin-top: 12px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 12px 24px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .cover,
+  .split,
+  .statRow {
+    grid-template-columns: 1fr;
+  }
+  .sheet {
+    padding: 28px;
+  }
+}
+
+@media print {
+  .page {
+    background: #fff;
+    padding: 0;
+  }
+  .toolbar {
+    display: none;
+  }
+  .sheet {
+    border: none;
+    box-shadow: none;
+    max-width: none;
+    padding: 0;
+  }
+}

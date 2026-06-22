@@ -8,6 +8,7 @@ import { FeatureCard } from "@/components/marketing/feature-card";
 import { PricingPlans } from "@/components/marketing/pricing-plans";
 import { ProductShot } from "@/components/marketing/product-shot";
 import { CTASection } from "@/components/marketing/cta-section";
+import { ScorecardBanner } from "@/components/marketing/scorecard-banner";
 import { AboutSection } from "@/components/marketing/about-section";
 import { isFoundingOfferOpen } from "@/config/plans";
 import { PROBLEM_CARDS, FEATURE_CARDS } from "@/lib/marketing/features";
@@ -68,6 +69,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* B2. Scorecard lead magnet — quantify the pain just named above. */}
+      <ScorecardBanner placement="home_problem" />
 
       {/* C. Capabilities — honest "built for agencies" credibility */}
       <section className="mSection mSectionAlt">

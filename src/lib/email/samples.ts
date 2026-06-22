@@ -53,6 +53,21 @@ export const SAMPLE_PAYLOADS: { [K in EmailKind]: EmailPayloads[K] } = {
     ],
     unsubscribeUrl: "https://trysarion.com/unsubscribe?token=sample",
   },
+
+  scorecardReport: {
+    scoreLabel: "47 / 100",
+    maturityLabel: "Firefighting",
+    maturityHeadline:
+      "You're running the agency from your inbox and chat. Every week leaks hours and money.",
+    revenueLeak: "$12,300 / year",
+    timeLost: "8.5 hrs / week",
+    reportUrl: "https://trysarion.com/scorecard/results/sample",
+    trialUrl: "https://trysarion.com/signup?source=scorecard&session=sample",
+    topFixes: [
+      { feature: "Invoicing", fix: "Generate invoices straight from project data and chase late payers automatically." },
+      { feature: "Client Portal", fix: "Give clients a portal so they stop asking 'what's the status?'." },
+    ],
+  },
 };
 
 export const ALL_EMAIL_KINDS = Object.keys(SAMPLE_PAYLOADS) as EmailKind[];

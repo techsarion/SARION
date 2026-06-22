@@ -29,6 +29,18 @@ export const ANALYTICS_EVENTS = {
   SubscriptionActivated: "Subscription Activated",
   SubscriptionCancelled: "Subscription Cancelled",
 
+  // ── Scorecard lead magnet (client + server) ──
+  ScorecardEntryClicked: "Scorecard Entry Clicked",
+  ScorecardLandingViewed: "Scorecard Landing Viewed",
+  ScorecardStarted: "Scorecard Started",
+  ScorecardQuestionAnswered: "Scorecard Question Answered",
+  ScorecardCompleted: "Scorecard Completed",
+  ScorecardEmailCaptured: "Scorecard Email Captured",
+  ScorecardResultsViewed: "Scorecard Results Viewed",
+  ScorecardReportDownloaded: "Scorecard Report Downloaded",
+  ScorecardTrialClicked: "Scorecard Trial Clicked",
+  ScorecardTrialConverted: "Scorecard Trial Converted",
+
   // ── Legacy (kept for existing Plausible dashboards) ──
   Signup: "Signup",
   BillingUpgrade: "Billing Upgrade",

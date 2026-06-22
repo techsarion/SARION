@@ -1,0 +1,159 @@
+/* Hero sample-result card. Built entirely on marketing --m-* tokens, so it
+   inverts automatically in dark mode. No client JS. */
+
+.card {
+  width: 100%;
+  max-width: 460px;
+  margin-inline: auto;
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background: var(--m-card);
+  box-shadow: var(--m-shadow-card-hover);
+  padding: var(--m-space-5);
+  display: grid;
+  gap: var(--m-space-4);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tag {
+  font-size: var(--m-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--m-fg-subtle);
+}
+.maturity {
+  font-size: var(--m-text-xs);
+  font-weight: 700;
+  color: var(--m-warning);
+  background: var(--m-warning-soft);
+  padding: 3px 10px;
+  border-radius: var(--m-radius);
+}
+
+/* Score row: gauge + label + progress bar */
+.scoreRow {
+  display: flex;
+  align-items: center;
+  gap: var(--m-space-4);
+  color: var(--m-fg);
+}
+.scoreMeta {
+  flex: 1;
+  min-width: 0;
+}
+.scoreLabel {
+  font-size: var(--m-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--m-fg-subtle);
+  margin-bottom: var(--m-space-2);
+}
+.bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--m-bg-elev);
+  border: 1px solid var(--m-border);
+  overflow: hidden;
+}
+.barFill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  /* Amber → matches the "needs work" sample score band. */
+  background: linear-gradient(90deg, #d97706, #f59e0b);
+}
+.scoreValue {
+  margin-top: var(--m-space-2);
+  font-size: var(--m-text-sm);
+  font-weight: 700;
+  color: var(--m-fg);
+}
+
+/* Stat cards */
+.statRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--m-space-3);
+}
+.stat {
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background: var(--m-bg-elev);
+  padding: var(--m-space-3) var(--m-space-4);
+}
+.statLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--m-text-xs);
+  font-weight: 600;
+  color: var(--m-fg-subtle);
+  margin-bottom: var(--m-space-1);
+}
+.statValue {
+  font-size: var(--m-text-xl);
+  font-weight: 700;
+  color: var(--m-fg);
+}
+.statDanger {
+  color: var(--m-warning);
+}
+
+/* Top fixes */
+.fixes {
+  display: grid;
+  gap: var(--m-space-2);
+}
+.fixesLabel {
+  font-size: var(--m-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--m-fg-subtle);
+}
+.fixRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--m-space-3);
+  font-size: var(--m-text-sm);
+}
+.fixName {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--m-fg);
+}
+.fixCheck {
+  color: var(--m-success);
+  flex-shrink: 0;
+}
+.fixImpact {
+  font-weight: 700;
+  color: var(--m-success);
+  white-space: nowrap;
+}
+
+.caption {
+  font-size: var(--m-text-xs);
+  color: var(--m-fg-subtle);
+  text-align: center;
+  border-top: 1px solid var(--m-border);
+  padding-top: var(--m-space-3);
+}
+
+@media (max-width: 420px) {
+  .scoreRow {
+    flex-direction: column;
+    text-align: center;
+  }
+  .scoreMeta {
+    width: 100%;
+  }
+}

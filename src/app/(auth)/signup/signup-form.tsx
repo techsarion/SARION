@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 interface SignupFormProps {
   inviteToken?: string;
   invite?: PublicInvite | null;
+  /** Scorecard lead session id, forwarded for conversion attribution. */
+  scorecardSession?: string;
 }
 
 const INVITE_ERROR: Record<string, string> = {
@@ -70,7 +72,7 @@ const STRENGTH_COLOR: Record<StrengthLevel, string> = {
   3: "bg-green-500",
 };
 
-export function SignupForm({ inviteToken, invite }: SignupFormProps) {
+export function SignupForm({ inviteToken, invite, scorecardSession }: SignupFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -114,6 +116,7 @@ export function SignupForm({ inviteToken, invite }: SignupFormProps) {
       password: pw,
       callbackURL: "/dashboard",
       ...(inviteToken ? { inviteToken } : {}),
+      ...(scorecardSession ? { scorecardSession } : {}),
     } as Parameters<typeof authClient.signUp.email>[0]);
 
     if (signUpError) {

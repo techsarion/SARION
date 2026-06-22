@@ -119,7 +119,7 @@ export const auth = betterAuth({
             data: { ...user, agencyId: agency.id, role: "owner" },
           };
         },
-        after: async (user) => {
+        after: async (user, context) => {
           const u = user as { email: string; name: string; agencyId?: string; role?: string };
 
           // New agency owners get a branded welcome email (best-effort).
@@ -137,6 +137,58 @@ export const auth = betterAuth({
                 event: ANALYTICS_EVENTS.WorkspaceCreated,
                 agencyId: u.agencyId,
               });
+
+              // Scorecard lead-magnet conversion attribution (Phase 11). The
+              // session id is forwarded in the signup body by the form when the
+              // user arrives via /signup?source=scorecard&session=<id>. This is
+              // best-effort: any failure must never break signup.
+              const rawSession = (context?.body as { scorecardSession?: unknown } | undefined)
+                ?.scorecardSession;
+              const scorecardSessionId =
+                typeof rawSession === "string" && rawSession.trim() !== ""
+                  ? rawSession.trim()
+                  : undefined;
+
+              if (scorecardSessionId) {
+                try {
+                  // Idempotent: only the first conversion is attributed
+                  // (convertedAgencyId guard), and a missing/already-converted
+                  // lead is a no-op (count 0) rather than an error.
+                  const attributed = await db.scorecardLead.updateMany({
+                    where: { sessionId: scorecardSessionId, convertedAgencyId: null },
+                    data: { convertedAgencyId: u.agencyId, convertedAt: new Date() },
+                  });
+                  if (attributed.count > 0) {
+                    // Read the stored result snapshot for rich, non-PII event
+                    // properties so the conversion can be segmented in PostHog.
+                    const snapshot = await db.scorecardSession.findUnique({
+                      where: { id: scorecardSessionId },
+                      select: { overallScore: true, maturity: true, pillarScores: true },
+                    });
+                    const { weakestPillar } = await import("@/server/services/scorecard");
+                    const pillars = (snapshot?.pillarScores ?? null) as
+                      | Record<"A" | "B" | "C" | "D", number>
+                      | null;
+
+                    const { captureServer } = await import("@/lib/posthog-server");
+                    const { ANALYTICS_EVENTS } = await import("@/lib/analytics-events");
+                    await captureServer({
+                      distinctId: uid ?? u.agencyId,
+                      event: ANALYTICS_EVENTS.ScorecardTrialConverted,
+                      agencyId: u.agencyId,
+                      properties: {
+                        session_id: scorecardSessionId,
+                        score: snapshot?.overallScore ?? 0,
+                        maturity_level: snapshot?.maturity ?? "unknown",
+                        weakest_pillar: pillars ? weakestPillar(pillars) : "unknown",
+                        agency_id: u.agencyId,
+                      },
+                    });
+                  }
+                } catch (err) {
+                  console.error("[scorecard] conversion attribution failed:", err);
+                }
+              }
             }
             return;
           }

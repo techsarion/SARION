@@ -1,0 +1,40 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--m-space-3);
+  padding: var(--m-space-8) var(--m-space-6);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background:
+    radial-gradient(circle at 50% 0%, var(--m-glow), transparent 60%),
+    var(--m-card);
+}
+
+.headline {
+  font-size: var(--m-text-3xl);
+  max-width: 22ch;
+}
+
+.subtext {
+  font-size: var(--m-text-lg);
+  color: var(--m-fg-muted);
+  max-width: 52ch;
+}
+
+.cta {
+  margin-top: var(--m-space-3);
+}
+
+.trust {
+  font-size: var(--m-text-xs);
+  color: var(--m-fg-subtle);
+  margin-top: var(--m-space-1);
+}
+
+@media (max-width: 640px) {
+  .headline {
+    font-size: var(--m-text-2xl);
+  }
+}

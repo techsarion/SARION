@@ -49,7 +49,8 @@ export function Navbar({ initialUser = null }: { initialUser?: NavUser | null })
 
   return (
     <header className={styles.navbar}>
-      <div className={`mContainer ${styles.inner}`}>
+      <div className="mContainer">
+        <div className={styles.topRow}>
         <Link
           href="/"
           className={styles.brand}
@@ -73,23 +74,6 @@ export function Navbar({ initialUser = null }: { initialUser?: NavUser | null })
             className={`${styles.logo} ${styles.logoDark}`}
           />
         </Link>
-
-        <nav className={styles.center}>
-          {NAV_LINKS.map((link) => {
-            const active = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={styles.link}
-                data-active={active || undefined}
-                aria-current={active ? "page" : undefined}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
 
         <div className={styles.actions}>
           <ThemeToggle />
@@ -121,6 +105,24 @@ export function Navbar({ initialUser = null }: { initialUser?: NavUser | null })
         >
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
+        </div>
+
+        <nav className={styles.center}>
+          {NAV_LINKS.map((link) => {
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={styles.link}
+                data-active={active || undefined}
+                aria-current={active ? "page" : undefined}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
 
       {open && (

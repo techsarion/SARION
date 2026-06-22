@@ -1,0 +1,264 @@
+.wrap {
+  max-width: 880px;
+  margin-inline: auto;
+  padding-block: var(--m-space-7) var(--m-space-8);
+}
+
+/* Header */
+.head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--m-space-6);
+  align-items: center;
+  border: 1px solid var(--m-border);
+  background: var(--m-card);
+  border-radius: var(--m-radius);
+  padding: var(--m-space-6);
+  box-shadow: var(--m-shadow-card);
+}
+.headMeta {
+  display: grid;
+  gap: var(--m-space-2);
+}
+.level {
+  font-size: var(--m-text-2xl);
+}
+.levelHeadline {
+  font-size: var(--m-text-base);
+  color: var(--m-fg-muted);
+  line-height: 1.55;
+}
+
+/* Stat cards */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--m-space-4);
+  margin-top: var(--m-space-5);
+}
+.stat {
+  border: 1px solid var(--m-border);
+  background: var(--m-card);
+  border-radius: var(--m-radius);
+  padding: var(--m-space-5);
+  position: relative;
+  overflow: hidden;
+}
+.statLabel {
+  font-size: var(--m-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--m-fg-subtle);
+}
+.statValue {
+  font-size: var(--m-text-2xl);
+  font-weight: 700;
+  color: var(--m-fg);
+  margin-top: var(--m-space-2);
+}
+.statValueDanger {
+  color: var(--m-warning);
+}
+
+/* Locked / blur overlay */
+.blur {
+  filter: blur(7px);
+  user-select: none;
+  pointer-events: none;
+}
+/* Email gate — a single flex-column centering axis so every child (heading,
+   text, form, consent, messages) shares one center, instead of each block
+   self-centering on a different max-width. */
+.gate {
+  margin-top: var(--m-space-6);
+  border: 1px solid var(--m-primary);
+  background: var(--m-card);
+  border-radius: var(--m-radius);
+  padding: var(--m-space-8) var(--m-space-6);
+  box-shadow: var(--m-shadow-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.gateTitle {
+  font-size: var(--m-text-2xl);
+  margin-bottom: var(--m-space-3);
+}
+.gateText {
+  font-size: var(--m-text-sm);
+  color: var(--m-fg-muted);
+  max-width: 44ch;
+  line-height: 1.6;
+  margin-bottom: var(--m-space-6);
+}
+.gateForm {
+  display: flex;
+  gap: var(--m-space-3);
+  width: 100%;
+  max-width: 440px;
+  justify-content: center;
+}
+.gateInput {
+  flex: 1 1 auto;
+  /* min-width:0 lets the input shrink within the centered row instead of
+     forcing the group off-center / overflowing on narrow widths. */
+  min-width: 0;
+  height: 48px;
+  padding-inline: var(--m-space-4);
+  border: 1px solid var(--m-border-strong);
+  border-radius: var(--m-radius);
+  background: var(--m-bg);
+  color: var(--m-fg);
+  font-size: var(--m-text-base);
+}
+.gateInput:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: var(--m-ring);
+  border-color: var(--m-primary);
+}
+.gateForm button {
+  white-space: nowrap;
+}
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--m-space-2);
+  max-width: 380px;
+  margin-top: var(--m-space-4);
+  font-size: var(--m-text-xs);
+  color: var(--m-fg-subtle);
+  text-align: left;
+  line-height: 1.5;
+}
+.error {
+  margin-top: var(--m-space-3);
+  max-width: 44ch;
+  font-size: var(--m-text-sm);
+  color: var(--m-warning);
+  font-weight: 600;
+}
+
+/* Mobile: stack input and button, both full-width and still centered. */
+@media (max-width: 480px) {
+  .gateForm {
+    flex-direction: column;
+  }
+  .gateInput,
+  .gateForm button {
+    width: 100%;
+  }
+}
+
+/* Sections */
+.section {
+  margin-top: var(--m-space-7);
+}
+.sectionTitle {
+  font-size: var(--m-text-xl);
+  margin-bottom: var(--m-space-4);
+}
+.split {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--m-space-6);
+  align-items: center;
+  border: 1px solid var(--m-border);
+  background: var(--m-card);
+  border-radius: var(--m-radius);
+  padding: var(--m-space-6);
+}
+
+/* Breakdown list */
+.list {
+  display: grid;
+  gap: var(--m-space-2);
+}
+.listRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--m-space-4);
+  padding: var(--m-space-3) 0;
+  border-bottom: 1px solid var(--m-border);
+  font-size: var(--m-text-sm);
+}
+.listRow span {
+  color: var(--m-fg-muted);
+}
+.listRow strong {
+  color: var(--m-fg);
+  white-space: nowrap;
+}
+
+/* Recommendations */
+.recs {
+  display: grid;
+  gap: var(--m-space-4);
+}
+.rec {
+  border: 1px solid var(--m-border);
+  background: var(--m-card);
+  border-radius: var(--m-radius);
+  padding: var(--m-space-5);
+}
+.recHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--m-space-3);
+  margin-bottom: var(--m-space-2);
+}
+.recFeature {
+  font-size: var(--m-text-lg);
+  font-weight: 600;
+}
+.recImpact {
+  font-size: var(--m-text-xs);
+  font-weight: 700;
+  color: var(--m-success);
+  background: var(--m-success-soft);
+  padding: 4px 10px;
+  border-radius: var(--m-radius);
+  white-space: nowrap;
+}
+.recProblem {
+  font-size: var(--m-text-sm);
+  color: var(--m-fg-muted);
+  line-height: 1.6;
+  margin-bottom: var(--m-space-2);
+}
+.recFix {
+  font-size: var(--m-text-sm);
+  color: var(--m-fg);
+  line-height: 1.6;
+}
+
+/* Final CTA */
+.cta {
+  margin-top: var(--m-space-7);
+  text-align: center;
+  padding: var(--m-space-7) var(--m-space-5);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  background: var(--m-bg-elev);
+}
+.ctaActions {
+  margin-top: var(--m-space-5);
+  display: flex;
+  gap: var(--m-space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 760px) {
+  .head,
+  .split {
+    grid-template-columns: 1fr;
+    text-align: center;
+    justify-items: center;
+  }
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}

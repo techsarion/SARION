@@ -8,7 +8,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL") // transaction pooler (pgbouncer) — app runtime
-  directUrl = env("DIRECT_URL")   // session pooler — migrations & introspection
+  directUrl = env("DIRECT_URL") // session pooler — migrations & introspection
 }
 
 enum Role {
@@ -65,30 +65,30 @@ model LemonWebhookEvent {
 }
 
 model Agency {
-  id                 String   @id @default(cuid())
-  name               String
-  logoUrl            String?
+  id                  String          @id @default(cuid())
+  name                String
+  logoUrl             String?
   // --- Billing / plan (see src/config/plans.ts for the source of truth) ---
-  planTier             PlanTier        @default(free)
-  billingInterval      BillingInterval @default(monthly)
+  planTier            PlanTier        @default(free)
+  billingInterval     BillingInterval @default(monthly)
   // Launch-cohort flag. Retained for lifetime perks / badge; Lemon Squeezy has
   // no per-customer locked price so it no longer affects which variant is sold.
-  foundingMember       Boolean         @default(false)
+  foundingMember      Boolean         @default(false)
   // 14-day no-card trial. Null once the agency has converted to a paid plan.
-  trialEndsAt          DateTime?
+  trialEndsAt         DateTime?
   // --- Lemon Squeezy billing identifiers ---
-  lemonCustomerId      String?
-  lemonOrderId         String?
-  lemonSubscriptionId  String?
+  lemonCustomerId     String?
+  lemonOrderId        String?
+  lemonSubscriptionId String?
   // Subscription lifecycle (normalized): trialing | active | past_due | canceled | unpaid | incomplete
-  subscriptionStatus   String          @default("trialing")
+  subscriptionStatus  String          @default("trialing")
   // Next invoice sequence number to assign (per-agency). Atomically incremented
   // during invoice creation — see src/server/services/invoice-number.ts.
-  invoiceSequence    Int      @default(1)
+  invoiceSequence     Int             @default(1)
   // Whether the starter sample workspace has been seeded (F8 onboarding).
-  seeded             Boolean  @default(false)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt @default(now())
+  seeded              Boolean         @default(false)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @default(now()) @updatedAt
 
   users          User[]
   clients        Client[]
@@ -133,7 +133,7 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  agency   Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  agency   Agency     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   sessions Session[]
   accounts Account[]
   feedback Feedback[]
@@ -190,16 +190,16 @@ model Verification {
 }
 
 model Client {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   agencyId    String
   name        String
   company     String?
   email       String?
   phone       String?
   notes       String?
-  portalToken String   @unique @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt @default(now())
+  portalToken String    @unique @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
   deletedAt   DateTime?
 
   agency     Agency     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
@@ -241,7 +241,7 @@ model Project {
   startDate   DateTime?
   dueDate     DateTime?
   createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt @default(now())
+  updatedAt   DateTime      @default(now()) @updatedAt
   deletedAt   DateTime?
 
   agency         Agency          @relation(fields: [agencyId], references: [id], onDelete: Cascade)
@@ -257,14 +257,14 @@ model Project {
 }
 
 model Task {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
   agencyId  String
   projectId String
   title     String
-  isDone    Boolean @default(false)
-  sortOrder Int     @default(0)
+  isDone    Boolean  @default(false)
+  sortOrder Int      @default(0)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   agency  Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -283,7 +283,7 @@ model Invoice {
   dueDate   DateTime?
   total     Decimal       @default(0) @db.Decimal(10, 2)
   createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt @default(now())
+  updatedAt DateTime      @default(now()) @updatedAt
   deletedAt DateTime?
 
   agency Agency        @relation(fields: [agencyId], references: [id], onDelete: Cascade)
@@ -297,15 +297,15 @@ model Invoice {
 }
 
 model InvoiceItem {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   agencyId    String
   invoiceId   String
   description String
-  qty         Int     @default(1)
-  unitPrice   Decimal @default(0) @db.Decimal(10, 2)
-  lineTotal   Decimal @default(0) @db.Decimal(10, 2)
+  qty         Int      @default(1)
+  unitPrice   Decimal  @default(0) @db.Decimal(10, 2)
+  lineTotal   Decimal  @default(0) @db.Decimal(10, 2)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 
   agency  Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
@@ -322,7 +322,7 @@ model Comment {
   authorName String
   body       String
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
 
   agency  Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
@@ -367,4 +367,81 @@ model PortalComment {
 
   @@index([projectId, createdAt])
   @@index([agencyId])
+}
+
+// ── Lead magnet: Agency Operations Scorecard + Profit Calculator ────────────
+// Public, UNAUTHENTICATED funnel. These two models are intentionally isolated
+// from the tenant graph (no relations into Agency/Client/etc.) so the open
+// scorecard flow can never read or write authenticated workspace data. The only
+// link back to a tenant is the nullable, relation-free `convertedAgencyId`
+// string on ScorecardLead, used purely for conversion attribution.
+
+// Operational maturity tiers — derived from the overall score. Scoring weights
+// and thresholds live in src/config/scorecard.ts (single source of truth).
+enum MaturityLevel {
+  FIREFIGHTING // 0–39   — running the agency from the inbox
+  STITCHED // 40–59  — tools exist but don't talk
+  COORDINATED // 60–79  — solid foundation
+  OPERATING_SYSTEM // 80–100 — a tight, scalable operation
+}
+
+// One assessment attempt. Created anonymously on first answer (keyed by a
+// first-party cookie UUID for resume + abandon analysis), then enriched with
+// computed results on completion. `answers`/`calibration` are JSON blobs of
+// option ids validated against the config — never free text.
+model ScorecardSession {
+  id          String @id @default(cuid())
+  // First-party cookie UUID. Lets a visitor resume on refresh/return and lets us
+  // measure abandonment. Not PII.
+  anonId      String
+  answers     Json   @default("{}") // { [questionId]: optionId }
+  calibration Json   @default("{}") // { teamSize, revenueBand, billableRate? }
+
+  // Computed snapshot (null until completed). Stored so results/report pages and
+  // the email render identically without recomputation.
+  overallScore    Int?
+  pillarScores    Json? // { A: number, B: number, C: number, D: number }
+  maturity        MaturityLevel?
+  revenueLeakYear Int? // estimated annual revenue leakage (currency minor unit = whole units)
+  timeLostHours   Float? // estimated hours lost per week
+  recommendations Json? // RecommendationResult[] snapshot
+
+  completedAt DateTime?
+  lead        ScorecardLead?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([anonId])
+  @@index([completedAt])
+}
+
+// Captured lead — created when a visitor unlocks the full report with their
+// email. One-to-one with the session that produced it.
+model ScorecardLead {
+  id             String  @id @default(cuid())
+  email          String
+  marketingOptIn Boolean @default(false)
+
+  sessionId String           @unique
+  session   ScorecardSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Hosted HTML report (print-to-PDF). Null until generated/persisted.
+  reportUrl String?
+
+  // Conversion attribution. Relation-free on purpose (see block comment above):
+  // set to an Agency id when this lead later starts a Sarion trial.
+  convertedAgencyId String?
+  convertedAt       DateTime?
+
+  // Marketing attribution captured from the landing URL.
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([convertedAgencyId])
 }

@@ -10,10 +10,20 @@ export const metadata: Metadata = {
 export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ invite?: string }>;
+  searchParams: Promise<{ invite?: string; source?: string; session?: string }>;
 }) {
-  const { invite: token } = await searchParams;
+  const { invite: token, source, session } = await searchParams;
   const invite = token ? await getPublicInvite(token) : null;
 
-  return <SignupForm inviteToken={token} invite={invite} />;
+  // Scorecard lead-magnet attribution: only honour the session id when it
+  // arrives via the scorecard CTA (?source=scorecard&session=<id>).
+  const scorecardSession = source === "scorecard" ? session : undefined;
+
+  return (
+    <SignupForm
+      inviteToken={token}
+      invite={invite}
+      scorecardSession={scorecardSession}
+    />
+  );
 }

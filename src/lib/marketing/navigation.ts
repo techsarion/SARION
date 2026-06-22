@@ -11,6 +11,7 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "Features", href: "/features" },
   { label: "Pricing", href: "/pricing" },
+  { label: "Free Scorecard", href: "/scorecard" },
   { label: "Portal Demo", href: "/portal-demo" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
@@ -21,6 +22,7 @@ export const PRODUCT_LINKS: NavLink[] = [
   { label: "Features", href: "/features" },
   { label: "Pricing", href: "/pricing" },
   { label: "Portal Demo", href: "/portal-demo" },
+  { label: "Free Scorecard", href: "/scorecard" },
 ];
 
 /** Legal column in the footer. */
