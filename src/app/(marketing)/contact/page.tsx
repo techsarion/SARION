@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { SectionHeader } from "@/components/marketing/section-header";
 import { ContactForm } from "@/components/marketing/contact-form";
+import { SocialLinks } from "@/components/marketing/social-links";
 import { JsonLd } from "@/components/seo/json-ld";
 import { TrackPageView } from "@/components/analytics/track-page-view";
 import { ANALYTICS_EVENTS } from "@/lib/analytics-events";
@@ -69,6 +70,11 @@ export default function ContactPage() {
               {siteConfig.supportEmail}
             </a>
           </div>
+        </div>
+
+        <div className={styles.follow}>
+          <p className={styles.followLabel}>Follow us</p>
+          <SocialLinks ariaLabel="Sarion on social media" />
         </div>
       </div>
     </section>

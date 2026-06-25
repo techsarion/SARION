@@ -7,6 +7,7 @@ import {
   COMPANY_LINKS,
 } from "@/lib/marketing/navigation";
 import { siteConfig } from "@/config/site";
+import { SocialLinks } from "./social-links";
 import styles from "./footer.module.css";
 
 const COLUMNS: { heading: string; links: typeof PRODUCT_LINKS }[] = [
@@ -53,6 +54,7 @@ export function Footer() {
               {siteConfig.supportEmail}
             </a>
           </div>
+          <SocialLinks ariaLabel="Sarion on social media" className={styles.social} />
         </div>
 
         <div className={styles.columns}>

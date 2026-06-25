@@ -46,6 +46,26 @@
   opacity: 0.8;
 }
 
+.follow {
+  max-width: 560px;
+  margin-inline: auto;
+  margin-top: var(--m-space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--m-space-3);
+  text-align: center;
+}
+
+.followLabel {
+  font-size: var(--m-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--m-fg-subtle);
+  margin: 0;
+}
+
 @media (max-width: 560px) {
   .details {
     grid-template-columns: 1fr;

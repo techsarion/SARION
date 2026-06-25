@@ -20,6 +20,9 @@ export function organizationSchema() {
     logo: `${siteConfig.url}/SARION-ICON.png`,
     description: siteConfig.description,
     email: siteConfig.contactEmail,
+    // Official social profiles — lets search engines link the brand's
+    // knowledge-panel entity to its verified social presence.
+    sameAs: Object.values(siteConfig.social),
     contactPoint: [
       {
         "@type": "ContactPoint",

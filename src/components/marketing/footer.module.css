@@ -61,6 +61,10 @@
   color: var(--m-primary);
 }
 
+.social {
+  margin-top: var(--m-space-2);
+}
+
 .columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

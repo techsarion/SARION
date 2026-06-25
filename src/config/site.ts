@@ -12,4 +12,13 @@ export const siteConfig = {
   // Public-facing addresses shown across the marketing site.
   salesEmail: "contact@trysarion.com",
   supportEmail: "support@trysarion.com",
+  // Official social profiles. Surfaced in the footer + contact page via
+  // <SocialLinks /> and exposed to search engines through the Organization
+  // JSON-LD `sameAs` array. Order here drives display order.
+  social: {
+    linkedin: "https://www.linkedin.com/company/try-sarion/",
+    facebook: "https://www.facebook.com/share/1EiEen8Pv4/",
+    x: "https://x.com/tech_sarion_",
+    instagram: "https://www.instagram.com/tech.sarion_/",
+  },
 } as const;
