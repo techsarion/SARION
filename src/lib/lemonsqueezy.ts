@@ -60,12 +60,23 @@ export interface CreateCheckoutInput {
   customData: Record<string, string>;
   /** Where Lemon Squeezy redirects after a successful purchase. */
   redirectUrl: string;
+  /** Optional buyer name to prefill on the hosted checkout. */
+  name?: string;
+  /**
+   * Optional billing-address prefill. Lemon Squeezy's checkout_data only honours
+   * `country` (ISO-2) and `zip` — city/state/line are collected on the hosted
+   * page itself, so we deliberately accept only these two.
+   */
+  billingAddress?: { country?: string; zip?: string };
+  /** Optional discount code, pre-applied + validated by Lemon at checkout. */
+  discountCode?: string;
 }
 
 /**
  * Create a hosted checkout and return its URL. We attach `custom_data` so the
  * webhook can resolve the agency without a prior customer lookup, and prefill
- * the email so the buyer maps to the right Lemon customer.
+ * the email (and optionally name / country / zip / discount) so the buyer maps
+ * to the right Lemon customer with as little re-entry as possible.
  */
 export async function createCheckoutUrl(
   input: CreateCheckoutInput,
@@ -73,14 +84,25 @@ export async function createCheckoutUrl(
   const storeId = process.env.LEMONSQUEEZY_STORE_ID;
   if (!storeId) throw new Error("LEMONSQUEEZY_STORE_ID is not configured.");
 
+  // Build checkout_data, omitting empty optional fields so we never send blank
+  // strings that Lemon would treat as "prefilled".
+  const billing: Record<string, string> = {};
+  if (input.billingAddress?.country) billing.country = input.billingAddress.country;
+  if (input.billingAddress?.zip) billing.zip = input.billingAddress.zip;
+
+  const checkoutData: Record<string, unknown> = {
+    email: input.email,
+    custom: input.customData,
+  };
+  if (input.name) checkoutData.name = input.name;
+  if (Object.keys(billing).length > 0) checkoutData.billing_address = billing;
+  if (input.discountCode) checkoutData.discount_code = input.discountCode;
+
   const payload = {
     data: {
       type: "checkouts",
       attributes: {
-        checkout_data: {
-          email: input.email,
-          custom: input.customData,
-        },
+        checkout_data: checkoutData,
         product_options: {
           redirect_url: input.redirectUrl,
         },

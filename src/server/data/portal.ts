@@ -23,10 +23,21 @@ export interface PortalProject {
   }[];
 }
 
+export interface PortalInvoice {
+  id: string;
+  number: string;
+  status: string;
+  total: number;
+  dueDate: Date | null;
+  createdAt: Date;
+}
+
 export interface PortalData {
   client: { id: string; agencyId: string; name: string };
   agency: { name: string; logoUrl: string | null };
   projects: PortalProject[];
+  /** This client's invoices (read-only) — newest first. */
+  invoices: PortalInvoice[];
   /** Whether to show the "Powered by Sarion" footer (Free plan only). */
   showPoweredBy: boolean;
 }
@@ -61,6 +72,18 @@ export async function getPortalData(token: string): Promise<PortalData | null> {
           },
         },
       },
+      invoices: {
+        where: { deletedAt: null },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          number: true,
+          status: true,
+          total: true,
+          dueDate: true,
+          createdAt: true,
+        },
+      },
     },
   });
 
@@ -79,6 +102,10 @@ export async function getPortalData(token: string): Promise<PortalData | null> {
     projects: client.projects.map(({ portalComments, ...p }) => ({
       ...p,
       comments: portalComments,
+    })),
+    invoices: client.invoices.map(({ total, ...inv }) => ({
+      ...inv,
+      total: Number(total),
     })),
     showPoweredBy: getPlanLimits(effectiveTier).poweredByBranding,
   };

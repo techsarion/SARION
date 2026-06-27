@@ -15,6 +15,7 @@ export type ActivityType =
   | "Client Updated"
   | "Note Added"
   | "Client Archived"
+  | "Client Restored"
   | "Project Created"
   | "Project Updated"
   | "Status Changed"
@@ -26,6 +27,7 @@ export type ActivityType =
   | "Invoice Archived"
   | "Team Member Invited"
   | "Team Member Joined"
+  | "Team Member Removed"
   | "Invite Cancelled"
   | "Portal Comment"
   | "Portal Viewed";

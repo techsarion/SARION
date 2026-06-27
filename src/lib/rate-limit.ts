@@ -18,6 +18,12 @@ import "server-only";
  * cleanly. No paid service is required: a single Postgres table on the existing
  * Supabase database (atomic upsert of a windowed counter) satisfies the
  * interface — see the docstring on RateLimitStore for the suggested shape.
+ *
+ * Currently applied at: portal comments, the contact form (api/contact), and the
+ * credential auth endpoints (api/auth sign-in / sign-up / password-reset). On
+ * Vercel the default MemoryStore is per-instance — to make these limits GLOBAL,
+ * register a distributed store via configureRateLimitStore(); no call site
+ * changes required.
  */
 
 export interface RateLimitResult {

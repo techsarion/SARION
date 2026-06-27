@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Plus, Users } from "lucide-react";
 
 import { requireAgency } from "@/server/auth-context";
-import { listClients } from "@/server/data/clients";
+import { listClients, listArchivedClients } from "@/server/data/clients";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ClientsSearch } from "@/components/clients/clients-search";
+import { RestoreClientButton } from "@/components/clients/restore-client-button";
 
 export const metadata: Metadata = { title: "Clients · Sarion" };
 
@@ -34,7 +35,10 @@ export default async function ClientsPage({
 }) {
   const { agencyId } = await requireAgency();
   const { q } = await searchParams;
-  const clients = await listClients(agencyId, q);
+  const [clients, archived] = await Promise.all([
+    listClients(agencyId, q),
+    listArchivedClients(agencyId),
+  ]);
 
   const isEmpty = clients.length === 0;
   const isSearching = Boolean(q?.trim());
@@ -109,6 +113,54 @@ export default async function ClientsPage({
                   ))}
                 </TableBody>
               </Table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Archived clients — restore reverses the archive (non-destructive). */}
+        {archived.length > 0 && (
+          <Card>
+            <CardContent className="p-0">
+              <div className="border-b px-6 py-4">
+                <p className="text-sm font-semibold">Archived</p>
+                <p className="text-xs text-muted-foreground">
+                  Hidden from your lists. Restore to bring a client back.
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="pl-6">Name</TableHead>
+                      <TableHead>Company</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Archived</TableHead>
+                      <TableHead className="pr-6 text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {archived.map((client) => (
+                      <TableRow key={client.id}>
+                        <TableCell className="pl-6 font-medium">
+                          {client.name}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {client.company ?? "—"}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {client.email ?? "—"}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {formatDate(client.archivedAt)}
+                        </TableCell>
+                        <TableCell className="pr-6 text-right">
+                          <RestoreClientButton clientId={client.id} />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             </CardContent>
           </Card>

@@ -24,6 +24,19 @@ export interface CheckoutParams {
   email: string;
   tier: PaidPlanTier;
   interval: BillingInterval;
+  /** Optional buyer name to prefill on the hosted checkout. */
+  name?: string;
+  /** Optional billing prefill — only country (ISO-2) + zip are honoured by Lemon. */
+  country?: string;
+  zip?: string;
+  /** Optional discount code, validated by Lemon at checkout. */
+  coupon?: string;
+  /**
+   * Path (relative to NEXT_PUBLIC_APP_URL) Lemon redirects to after a successful
+   * purchase. Defaults to the existing billing settings page so legacy callers
+   * are unaffected; the custom checkout passes "/checkout/success".
+   */
+  successPath?: string;
 }
 
 export type CheckoutResult =
@@ -54,12 +67,17 @@ export async function createCheckoutSession(
     };
   }
 
+  const successPath = params.successPath ?? "/settings/billing?success=1";
+
   try {
     const url = await createCheckoutUrl({
       variantId,
       email,
       customData: { agency_id: agencyId, tier, interval },
-      redirectUrl: `${appUrl()}/settings/billing?success=1`,
+      redirectUrl: `${appUrl()}${successPath}`,
+      name: params.name,
+      billingAddress: { country: params.country, zip: params.zip },
+      discountCode: params.coupon,
     });
     return { ok: true, url };
   } catch (err) {

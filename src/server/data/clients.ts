@@ -53,6 +53,36 @@ export async function listClients(
   }));
 }
 
+export interface ArchivedClientItem {
+  id: string;
+  name: string;
+  company: string | null;
+  email: string | null;
+  archivedAt: Date;
+}
+
+/** Archived (soft-deleted) clients for an agency — newest archive first. */
+export async function listArchivedClients(
+  agencyId: string,
+): Promise<ArchivedClientItem[]> {
+  const clients = await db.client.findMany({
+    where: { agencyId, deletedAt: { not: null } },
+    orderBy: { deletedAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      company: true,
+      email: true,
+      deletedAt: true,
+    },
+  });
+
+  return clients.map(({ deletedAt, ...c }) => ({
+    ...c,
+    archivedAt: deletedAt as Date,
+  }));
+}
+
 /** A single active client owned by the agency, with its recent activity. */
 export async function getClient(agencyId: string, clientId: string) {
   return db.client.findFirst({

@@ -7,6 +7,7 @@ import { PlausibleScript } from "@/components/plausible-script";
 import { GoogleAnalytics } from "@/components/google-analytics";
 import { AhrefsAnalytics } from "@/components/ahrefs-analytics";
 import { PostHogProvider } from "@/components/analytics/posthog-provider";
+import { ServiceWorkerCleanup } from "@/components/sw-cleanup";
 import "./globals.css";
 
 // Body — Inter 400
@@ -85,6 +86,7 @@ export default function RootLayout({
         <AhrefsAnalytics />
       </head>
       <body
+        suppressHydrationWarning
         className={`${inter.variable} ${geist.variable} ${fraunces.variable} font-sans`}
       >
         <ThemeProvider
@@ -93,6 +95,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <ServiceWorkerCleanup />
           <PostHogProvider />
           {children}
         </ThemeProvider>

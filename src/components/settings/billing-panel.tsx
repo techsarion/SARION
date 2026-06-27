@@ -44,26 +44,12 @@ export function BillingPanel({
   );
   const [loading, setLoading] = useState<PaidPlanTier | "portal" | null>(null);
 
-  async function handleUpgrade(tier: PaidPlanTier) {
+  function handleUpgrade(tier: PaidPlanTier) {
     setLoading(tier);
-    try {
-      const res = await fetch("/api/billing/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier, interval }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.url) {
-        toast.error(data.error ?? "Could not start checkout.");
-        return;
-      }
-      trackEvent(AnalyticsEvent.BillingUpgrade, { tier, interval });
-      window.location.href = data.url;
-    } catch {
-      toast.error("Network error. Please try again.");
-    } finally {
-      setLoading(null);
-    }
+    trackEvent(AnalyticsEvent.BillingUpgrade, { tier, interval });
+    // Route to the premium custom checkout page; it collects buyer details and
+    // creates the Lemon Squeezy checkout via /api/billing/checkout from there.
+    window.location.href = `/checkout?tier=${tier}&interval=${interval}`;
   }
 
   async function handlePortal() {

@@ -148,6 +148,64 @@ export async function inviteTeamMember(
   return { ok: true, token: invite.token };
 }
 
+export type RemoveMemberResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Remove a team member (owner-only). A "membership" is the User row scoped to
+ * this agency, so removal deletes that user (cascading their sessions/accounts
+ * per the schema). Guards: the actor must be an owner, and the workspace must
+ * always retain at least one owner — so the final owner can never be removed
+ * (which also blocks an owner removing themselves when they're the last owner).
+ */
+export async function removeTeamMember(
+  memberId: string,
+): Promise<RemoveMemberResult> {
+  const { agencyId, role } = await requireAgency();
+
+  if (role !== "owner") {
+    return { ok: false, error: "Only the agency owner can remove members." };
+  }
+
+  const result = await db.$transaction(async (tx) => {
+    // Scoped lookup confirms the target belongs to this agency.
+    const target = await tx.user.findFirst({
+      where: { id: memberId, agencyId },
+      select: { id: true, name: true, email: true, role: true },
+    });
+    if (!target) return { ok: false as const, error: "Member not found." };
+
+    // Never leave the workspace without an owner.
+    if (target.role === "owner") {
+      const owners = await tx.user.count({
+        where: { agencyId, role: "owner" },
+      });
+      if (owners <= 1) {
+        return {
+          ok: false as const,
+          error: "You can't remove the last owner of the workspace.",
+        };
+      }
+    }
+
+    await tx.user.delete({ where: { id: target.id } });
+
+    await logActivity(
+      {
+        agencyId,
+        type: "Team Member Removed",
+        description: `${target.name} (${target.email}) was removed from the team.`,
+      },
+      tx,
+    );
+    return { ok: true as const };
+  });
+
+  if (!result.ok) return result;
+
+  revalidatePath("/team");
+  return { ok: true };
+}
+
 export type CancelInviteResult = { ok: true } | { ok: false; error: string };
 
 /**

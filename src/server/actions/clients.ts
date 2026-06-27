@@ -199,3 +199,38 @@ export async function archiveClient(clientId: string): Promise<ActionResult> {
   revalidatePath("/clients");
   return { ok: true, clientId };
 }
+
+// --- Restore (reverse archive) ------------------------------------------
+
+/**
+ * Restore an archived client (reverse of archiveClient). Clears `deletedAt` so
+ * the client reappears in lists. Projects/invoices were never archived with the
+ * client (archive only sets the client's own deletedAt), so all related data is
+ * already intact and reappears automatically.
+ */
+export async function restoreClient(clientId: string): Promise<ActionResult> {
+  const { agencyId } = await requireAgency();
+
+  const result = await db.$transaction(async (tx) => {
+    const { count } = await tx.client.updateMany({
+      where: { id: clientId, agencyId, deletedAt: { not: null } },
+      data: { deletedAt: null },
+    });
+    if (count === 0) return false;
+    await logActivity(
+      {
+        agencyId,
+        clientId,
+        type: "Client Restored",
+        description: "Client was restored.",
+      },
+      tx,
+    );
+    return true;
+  });
+
+  if (!result) return { ok: false, error: "Archived client not found." };
+
+  revalidatePath("/clients");
+  return { ok: true, clientId };
+}

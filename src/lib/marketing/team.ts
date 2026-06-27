@@ -9,13 +9,13 @@ export const TEAM: TeamMember[] = [
   {
     name: "Sara Siddiqui",
     initials: "SS",
-    title: "Founder & Chairman",
+    title: "Founder & CEO",
     bio: "Focused on building software that helps agencies operate more efficiently.",
   },
   {
     name: "Alia Siddiqui",
     initials: "AS",
-    title: "Co-Founder & CEO",
+    title: "Co-Founder & Marketing Officer",
     bio: "Leads marketing strategy and ensures Sarion reaches the agencies that need it most.",
   },
   {

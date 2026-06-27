@@ -12,6 +12,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { PortalCommentForm } from "@/components/portal/portal-comment-form";
 import { PROJECT_STATUS_VARIANT, statusLabel } from "@/lib/project-status";
+import {
+  INVOICE_STATUS_VARIANT,
+  invoiceStatusLabel,
+  displayStatus,
+} from "@/lib/invoice-status";
 
 // Token-gated client portal — must never be indexed. Each portal exposes a
 // specific client's private project data behind an unguessable token.
@@ -36,6 +41,13 @@ function formatDateTime(date: Date) {
     hour: "numeric",
     minute: "2-digit",
   }).format(date);
+}
+
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(amount);
 }
 
 export default async function PortalPage({
@@ -141,6 +153,48 @@ export default async function PortalPage({
             </Card>
           ))
         )}
+
+        {/* Invoices — read-only. Scoped to this client via the portal token. */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Invoices</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {data.invoices.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No invoices to show yet.
+              </p>
+            ) : (
+              <ul className="divide-y">
+                {data.invoices.map((invoice) => {
+                  const status = displayStatus(invoice.status, invoice.dueDate);
+                  return (
+                    <li
+                      key={invoice.id}
+                      className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium">{invoice.number}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Issued {formatDate(invoice.createdAt)} · Due{" "}
+                          {formatDate(invoice.dueDate)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge variant={INVOICE_STATUS_VARIANT[status]}>
+                          {invoiceStatusLabel(status)}
+                        </Badge>
+                        <span className="font-semibold tabular-nums">
+                          {formatCurrency(invoice.total)}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </main>
 
       {data.showPoweredBy && (

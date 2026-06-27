@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import { InviteForm } from "@/components/team/invite-form";
 import { CancelInviteButton } from "@/components/team/cancel-invite-button";
+import { RemoveMemberButton } from "@/components/team/remove-member-button";
 
 export const metadata: Metadata = { title: "Team · Sarion" };
 
@@ -34,7 +35,7 @@ function formatDate(date: Date) {
 
 export default async function TeamPage() {
   // Owner-only route — members are redirected to /dashboard.
-  const { agencyId } = await requireOwner();
+  const { agencyId, userId } = await requireOwner();
 
   const [members, pending] = await Promise.all([
     listTeamMembers(agencyId),
@@ -62,7 +63,8 @@ export default async function TeamPage() {
                   <TableHead className="pl-6">Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
-                  <TableHead className="pr-6 text-right">Joined</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead className="pr-6 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -81,8 +83,16 @@ export default async function TeamPage() {
                         {member.role === "owner" ? "Owner" : "Member"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="pr-6 text-right text-muted-foreground">
+                    <TableCell className="text-muted-foreground">
                       {formatDate(member.joinedAt)}
+                    </TableCell>
+                    <TableCell className="pr-6 text-right">
+                      {member.role !== "owner" && member.id !== userId && (
+                        <RemoveMemberButton
+                          memberId={member.id}
+                          memberName={member.name}
+                        />
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

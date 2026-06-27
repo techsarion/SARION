@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { sendContactEmail } from "@/lib/email";
+import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 
 // Contact form submissions are delivered to the Sarion inbox via Resend.
 const bodySchema = z.object({
@@ -12,6 +13,16 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Coarse abuse guard: 5 submissions per day per IP.
+  const ip = clientIpFromHeaders(req.headers);
+  const limit = await rateLimit(`contact:${ip}`, 5, 24 * 60 * 60 * 1000);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many messages. Please try again later or email us directly." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } },
+    );
+  }
+
   let json: unknown;
   try {
     json = await req.json();
