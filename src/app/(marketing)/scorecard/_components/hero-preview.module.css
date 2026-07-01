@@ -148,6 +148,24 @@
   padding-top: var(--m-space-3);
 }
 
+@media (max-width: 480px) {
+  .card {
+    padding: var(--m-space-4);
+  }
+  /* Two stat columns get too tight for the xl value — stack them. */
+  .statRow {
+    grid-template-columns: 1fr;
+  }
+  .statValue {
+    font-size: var(--m-text-lg);
+  }
+  /* Fix rows wrap instead of letting the nowrap impact push past the edge. */
+  .fixRow {
+    flex-wrap: wrap;
+    gap: var(--m-space-1) var(--m-space-3);
+  }
+}
+
 @media (max-width: 420px) {
   .scoreRow {
     flex-direction: column;
