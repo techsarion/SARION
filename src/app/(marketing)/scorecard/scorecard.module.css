@@ -244,4 +244,12 @@
   .finalCta {
     padding: var(--m-space-6) var(--m-space-4);
   }
+  /* Full-width and allowed to wrap so the CTA never forces horizontal scroll
+     on the narrowest phones (the base .mBtn is nowrap + wide padding). */
+  .finalCta :global(.mBtn) {
+    width: 100%;
+    max-width: 100%;
+    white-space: normal;
+    padding-inline: var(--m-space-4);
+  }
 }
